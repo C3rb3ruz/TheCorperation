@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EvilCorp — Offensive Security Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#17181b; --surface:#1f2023; --line:#2d2e32; --ink:#ececec; --muted:#9a9a9e;
+  --accent:#b5473a; --accent-soft:#2a1c1a; --good:#5fa37a; --bad:#d16a5c; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;line-height:1.6;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+h1,h2,h3{font-family:Archivo,sans-serif;margin:0;letter-spacing:-0.01em}
+a{color:var(--accent)}
+.container{max-width:1020px;margin:0 auto;padding:0 24px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+
+.gatewrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.gatebox{max-width:380px;width:100%;border:1px solid var(--line);border-radius:5px;padding:36px;background:var(--surface)}
+.gatebox .brand{font-family:Archivo;font-weight:800;font-size:20px;margin-bottom:4px;color:var(--accent)}
+.gatebox p.tag{color:var(--muted);font-size:13.5px;margin:0 0 26px}
+.gatebox label{display:block;font-size:13px;font-weight:600;margin:14px 0 6px}
+.gatebox input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:3px;font:inherit;background:var(--bg);color:var(--ink)}
+.gatebox button{margin-top:22px;width:100%;padding:11px;border:none;border-radius:3px;background:var(--accent);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+.gate-msg{font-size:13px;margin-top:12px;min-height:16px;color:var(--bad)}
+
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.navrow{display:flex;align-items:center;justify-content:space-between;max-width:1020px;margin:0 auto;padding:16px 24px;gap:16px;flex-wrap:wrap}
+.brand{font-family:Archivo;font-weight:800;font-size:19px;cursor:pointer;color:var(--accent)}
+.navlinks{display:flex;gap:20px;flex-wrap:wrap}
+.navlinks a{color:var(--ink);text-decoration:none;font-size:14px;font-weight:500;cursor:pointer}
+.navlinks a:hover{color:var(--accent)}
+.whoami{font-size:12.5px;color:var(--muted)}
+.crumb{color:var(--muted);font-size:13px;margin:28px 0 -8px}
+.crumb a{color:var(--muted);cursor:pointer}
+.crumb a:hover{color:var(--accent)}
+
+.hero{padding:64px 0 48px;border-bottom:1px solid var(--line);background:var(--surface)}
+.eyebrow{color:var(--accent);font-size:13.5px;margin:0 0 14px;font-weight:600}
+.hero h1{font-size:clamp(28px,4.6vw,44px);line-height:1.08;max-width:17ch}
+.hero p.lede{max-width:56ch;color:var(--muted);font-size:16px;margin:18px 0 0}
+.stat-row{display:flex;gap:36px;margin-top:32px;flex-wrap:wrap}
+.stat b{font-family:Archivo;font-size:26px;display:block;color:var(--accent)}
+.stat span{color:var(--muted);font-size:13px}
+
+.page{padding:52px 0 68px}
+.page h2{font-size:26px;margin-bottom:8px}
+.page h3.sechead{font-size:18px;margin:38px 0 6px}
+.page p.sub{color:var(--muted);max-width:60ch;margin:0 0 28px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media(max-width:720px){.grid2,.grid3{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:4px;padding:20px;background:var(--surface)}
+.card h3{font-size:16px;margin-bottom:6px}
+.card p{color:var(--muted);font-size:14px;margin:0}
+.notebox{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:4px;padding:16px 18px;font-size:13.5px;color:var(--muted);margin-top:16px}
+.piplist{list-style:none;padding:0;margin:0;color:var(--muted);font-size:13.5px}
+.piplist li{padding:7px 0;border-bottom:1px solid var(--line)}
+.sechead{font-size:18px;margin:38px 0 6px}
+
+.flagbox{border:1px dashed var(--accent);background:var(--accent-soft);border-radius:4px;padding:12px 16px;margin:18px 0;font-size:13.5px;cursor:pointer;user-select:none}
+.flagbox .label{font-weight:600;color:var(--accent)}
+.flagbox .reveal{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin-top:8px;display:none;color:var(--ink)}
+.flagbox.open .reveal{display:block}
+
+/* ops log */
+.logentry{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.logentry .ts{color:var(--muted);min-width:132px;flex-shrink:0}
+.logentry .msg{color:var(--ink)}
+.logline{padding:7px 0;border-bottom:1px solid #26272a;cursor:pointer;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px}
+.logline:hover{color:var(--accent)}
+.logdetail{display:none;padding:8px 0 4px;font-size:12.5px;color:var(--muted)}
+.logdetail.open{display:block}
+.terminal{background:#0b0c0e;border:1px solid var(--line);border-radius:6px;padding:20px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;color:#d7d7d7}
+.terminal .tline{color:#8a8f98;margin-bottom:10px}
+.terminal .tprompt{color:var(--accent)}
+.terminal input{background:transparent;border:none;border-bottom:1px solid #333;color:#fff;font:inherit;padding:4px 2px;width:220px}
+.terminal input:focus{outline:none;border-bottom-color:var(--accent)}
+.terminal button{margin-top:14px;background:var(--accent);color:#fff;border:none;border-radius:3px;padding:8px 16px;font:inherit;cursor:pointer}
+.terminal .tmsg{color:var(--bad);font-size:12.5px;margin-top:10px;min-height:16px}
+.termrow{margin:10px 0}
+
+/* leadership grid */
+.execcard{border:1px solid var(--line);border-radius:4px;padding:18px;cursor:pointer;background:var(--surface)}
+.execcard:hover{border-color:var(--accent)}
+.execcard h3{font-size:15px;margin-bottom:3px}
+.execcard p{color:var(--muted);font-size:13px;margin:0}
+.execdetail{display:none;margin-top:12px;font-size:13.5px;color:var(--muted)}
+.execdetail.open{display:block}
+
+footer{padding:44px 0 56px;border-top:1px solid var(--line);margin-top:20px}
+.footer-note{color:var(--muted);font-size:13px;margin-bottom:20px}
+.footer-links{columns:4;column-gap:20px;font-size:11.5px}
+@media(max-width:720px){.footer-links{columns:2}}
+.footer-links a{display:block;color:var(--muted);text-decoration:none;padding:3px 0;cursor:pointer;break-inside:avoid}
+.footer-links a:hover{color:var(--accent)}
+.copyright{color:var(--muted);font-size:11.5px;margin-top:24px}
+</style>
+</head>
+<body>
+
+<div id="gateScreen" class="gatewrap">
+  <div class="gatebox">
+    <div class="brand">EVILCORP</div>
+    <p class="tag">Internal systems. Engineering clearance or higher required.</p>
+    <label for="gu">Username</label>
+    <input type="text" id="gu" autocomplete="off" spellcheck="false">
+    <label for="gp">Password</label>
+    <input type="password" id="gp" autocomplete="off">
+    <button onclick="attemptGate()">Sign in</button>
+    <div class="gate-msg" id="gateMsg"></div>
+  </div>
+</div>
+
+<div id="siteRoot" style="display:none">
+<nav>
+  <div class="navrow">
+    <div class="brand" onclick="go('home')">EVILCORP</div>
+    <div class="navlinks">
+      <a onclick="go('home')">Home</a>
+      <a onclick="go('about')">About</a>
+      <a onclick="go('notifications')">Notifications</a>
+      <a onclick="go('leadership')">Leadership</a>
+    </div>
+    <span class="whoami" id="whoami"></span>
+  </div>
+</nav>
+
+<div class="container" id="crumb-wrap" style="display:none"><p class="crumb" id="crumb"></p></div>
+<div id="app"></div>
+
+<footer class="container">
+  <p class="footer-note">EvilCorp — offensive security practice.</p>
+  <div class="footer-links" id="footerLinks"></div>
+  <p class="copyright">© EvilCorp. Internal training environment — fictional company, fictional data.</p>
+</footer>
+</div>
+
+<script>
+/* ---------- auth ---------- */
+const CRED_HASHES = {
+  "31cd361906da687145d9388a8b981cedc5d07decde474f9bef24364787f46fcd": {level:1, name:"Marcus Whitfield", role:"HR"},
+  "0b54ba499b015209f84de1f445e0c8235dfb319dc2fd118db9b3183e91b902aa": {level:2, name:"Priya Suresh", role:"Engineering"},
+  "8ab4345d22b7be1a3fca599fdde58abaa6974de091cc1ceaf7b745db7e9d8b3e": {level:3, name:"Daniel Reyes", role:"VP"}
+};
+async function sha256(text){
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest("SHA-256", enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+}
+let currentUser = null;
+const REQUIRED_LEVEL = 2; // Engineering (Dev) or higher
+async function attemptGate(){
+  const u = document.getElementById("gu").value.trim();
+  const p = document.getElementById("gp").value;
+  const msg = document.getElementById("gateMsg");
+  if(!u || !p){ return; }
+  const hash = await sha256(u + "|" + p);
+  const match = CRED_HASHES[hash];
+  if(!match){ msg.textContent = "Invalid credentials."; return; }
+  if(match.level < REQUIRED_LEVEL){ msg.textContent = "Credentials valid, but insufficient clearance for this system."; return; }
+  currentUser = match;
+  document.getElementById("gateScreen").style.display = "none";
+  document.getElementById("siteRoot").style.display = "block";
+  document.getElementById("whoami").textContent = "Signed in as " + match.name;
+  render();
+}
+
+/* ---------- flags ---------- */
+const FLAGS = {
+  f11: "U0V7ZWIwOWU2YzNkNjQwMDcwNX0=",
+  f14: "U0V7NjQ2MGJkOGViMzA4NjUzMX0=",
+  f15: "U0V7Mjg4ODI4NzVkMWU3YzU4M30="
+};
+function flagbox(key, label){
+  return '<div class="flagbox" onclick="event.stopPropagation();toggleFlag(this,\''+key+'\')"><span class="label">'+label+'</span><div class="reveal"></div></div>';
+}
+function toggleFlag(el, key){
+  const reveal = el.querySelector(".reveal");
+  if(!el.classList.contains("open")){ reveal.textContent = "Flag: " + atob(FLAGS[key]); }
+  el.classList.toggle("open");
+}
+
+/* ---------- footer maze ---------- */
+const FOOTER_LINKS = [
+  {label:"Privacy Policy", hash:"ec-privacy"},
+  {label:"Terms of Service", hash:"ec-terms"},
+  {label:"About", hash:"about"},
+  {label:"Access Policy", hash:"ec-accesspolicy"},
+  {label:"Change Log", hash:"ec-changelog"},
+  {label:"Executive Systems", hash:"restricted"},
+  {label:"Compliance", hash:"ec-compliance"},
+  {label:"Vendor Agreements", hash:"ec-vendor"},
+  {label:"Notifications", hash:"notifications"},
+  {label:"Audit Policy", hash:"ec-audit"},
+  {label:"Leadership", hash:"leadership"},
+  {label:"Incident Archive", hash:"ec-incidents"},
+  {label:"Internal Tools", hash:"ec-tools"},
+  {label:"Data Retention", hash:"ec-retention"},
+  {label:"Site Map", hash:"ec-sitemap"}
+];
+const REAL_HASHES = new Set(["about","notifications","leadership","restricted","ec-changelog"]);
+const DECOY_CONTENT = {
+  "ec-privacy": {title:"Privacy Policy", html:`
+    <p>This policy covers how EvilCorp handles information collected through internal systems and, where applicable, through engagement work performed on behalf of clients.</p>
+    <p>Internal system logs — including the kind visible on Notifications and in the internal change history — are retained for operational purposes and are not shared outside the entity without authorization.</p>
+    <p>Questions about this policy route through the same internal channel as any other compliance question.</p>`},
+  "ec-terms": {title:"Terms of Service", html:`
+    <p>Access to EvilCorp's internal systems is granted per-account and is non-transferable. Credentials are not to be shared between staff, including temporarily, regardless of clearance level.</p>
+    <p>These terms apply to every internal system referenced from this site, including anything reached through the footer.</p>`},
+  "ec-accesspolicy": {title:"Access Policy", html:`
+    <p>Clearance is tiered: general staff, engineering, and executive. Each tier inherits access from the tier below it — executive clearance satisfies anything engineering clearance would, and so on.</p>
+    <p>Some systems check clearance at the door; a few check it again further in, for anything sensitive enough to warrant a second gate.</p>`},
+  "ec-compliance": {title:"Compliance", html:`
+    <p>EvilCorp's work frequently touches client environments under explicit, scoped authorization. Every engagement operates under a signed rules-of-engagement document before any testing begins.</p>
+    <p>Internal compliance reviews run on a rolling basis rather than a fixed calendar, given how engagement-driven the work here is compared to the consulting side.</p>`},
+  "ec-vendor": {title:"Vendor Agreements", html:`
+    <p>A short list of tooling vendors supports offensive engagement work here, separate from the vendor relationships Granularity and LiveCorp maintain on the consulting and monitoring sides.</p>`},
+  "ec-audit": {title:"Audit Policy", html:`
+    <p>Internal systems are subject to periodic access review — who has clearance to what, and whether that clearance still matches their current role.</p>
+    <p>Reviews have occasionally caught stale access left over from a role change that nobody remembered to revoke. It happens less often than it used to.</p>`},
+  "ec-incidents": {title:"Incident Archive", html:`
+    <p>A record of past internal incidents — mostly minor, the kind every operations team accumulates over time. Nothing client-facing is tracked here; that lives in a separate system entirely.</p>`},
+  "ec-tools": {title:"Internal Tools", html:`
+    <p>A loose index of internal tooling used day to day — mostly scripts and dashboards specific to how this team runs engagements, not something built for outside use.</p>`},
+  "ec-retention": {title:"Data Retention", html:`
+    <p>Engagement artifacts are retained per the signed statement of work for each client, typically between 90 days and one year depending on the engagement type.</p>
+    <p>Internal system logs, separately, follow their own retention schedule — generally longer, since they're used for access review rather than client deliverables.</p>`},
+  "ec-sitemap": {title:"Site Map", html:`
+    <p>Primary sections: Home, About, Notifications, Leadership. A handful of other entries in the footer point to policy pages or restricted systems rather than primary navigation.</p>`}
+};
+document.getElementById("footerLinks").innerHTML = FOOTER_LINKS.map(l => '<a onclick="go(\''+l.hash+'\')">'+l.label+'</a>').join("");
+function decoyHTML(hash){
+  const d = DECOY_CONTENT[hash];
+  return `<div class="page container"><h2>${d.title}</h2>${d.html}</div>`;
+}
+
+/* ---------- notifications (plain list, one hint, no flag here) ---------- */
+const NOTIF_ITEMS = [
+  "Scheduled maintenance completed on the internal auth service.",
+  "New device enrollment policy rolled out to all staff accounts.",
+  "Quarterly access review reminder sent to all department leads.",
+  "Badge reader firmware updated across the Austin office.",
+  "VPN gateway certificate renewed, no action needed.",
+  "Internal wiki search index rebuilt after the last migration.",
+  "Someone flagged unusually high read traffic against the internal change history a few weeks back — nothing came of it, but if you're digging into access issues, it might be worth a look.",
+  "Shared drive cleanup completed, stale files archived.",
+  "On-call paging tool upgraded to the latest version.",
+  "Email retention policy updated per legal's latest guidance.",
+  "Internal status bot migrated to a new host.",
+  "Monthly password hygiene reminder sent to all staff."
+];
+function notificationsListHTML(){
+  return `<ul class="piplist">` + NOTIF_ITEMS.map(n => `<li>${n}</li>`).join("") + `</ul>`;
+}
+
+/* ---------- change log terminal (flag 11, gated by Dev creds) ---------- */
+const LOG_USERS = ["r.ocasio","d.whitaker","k.osei","l.marchetti","q.beaumont","s.vargas","t.lindgren","u.adeyemi","v.kowalski","w.bianchi","x.renaud","psuresh","c.winterbourne","y.solberg","z.mbeki","a.furuya","b.castellanos"];
+const LOG_ACTIONS = [
+  "Login from new device approved",
+  "MFA re-enrollment completed",
+  "VPN session established",
+  "Password reset completed for account",
+  "Access group membership updated",
+  "Badge access synced with HR system",
+  "SSH key rotated",
+  "Session token refreshed",
+  "Device compliance check passed",
+  "Account unlocked after failed attempts",
+  "Config change deployed to prod",
+  "Scheduled job completed successfully",
+  "Firewall rule updated",
+  "Certificate renewed",
+  "Backup job completed"
+];
+function buildLog(){
+  const entries = [];
+  const total = 96;
+  const flagIdx = 61;
+  for(let i = 0; i < total; i++){
+    const user = LOG_USERS[(i * 3) % LOG_USERS.length];
+    const action = LOG_ACTIONS[(i * 5) % LOG_ACTIONS.length];
+    const ts = "2026-0" + (1 + (i % 9)) + "-" + String(10 + (i % 18)).padStart(2,"0") + " " + String(6 + (i % 14)).padStart(2,"0") + ":" + String((i * 7) % 60).padStart(2,"0");
+    if(i === flagIdx){
+      entries.push({ ts, msg: "Password reset completed for account: dreyes", detail: "Temporary credential issued via self-service portal: BoardRoom!7 · Role: VP, Executive", flagged: true });
+    } else {
+      entries.push({ ts, msg: action + ": " + user, detail: "No additional detail logged for this event." });
+    }
+  }
+  return entries;
+}
+let termAuthed = false;
+function toggleLogLine(i){
+  document.getElementById("logdetail-" + i).classList.toggle("open");
+}
+function terminalLogHTML(){
+  const entries = buildLog();
+  const lines = entries.map((e,i) => `
+    <div class="logline" onclick="toggleLogLine(${i})">[${e.ts}] ${e.msg}</div>
+    <div class="logdetail" id="logdetail-${i}">${e.detail}${e.flagged ? flagbox('f11','🔑 Credential in log entry — click to confirm') : ""}</div>
+  `).join("");
+  return `<div class="page container">
+    <p class="backlink" onclick="go('home')">← Back to Home</p>
+    <h2>Change Log</h2>
+    <p class="sub">ops-log@evilcorp.internal — session active. 96 events on record. Click any line for detail.</p>
+    <div class="terminal">${lines}</div>
+  </div>`;
+}
+function terminalGateHTML(){
+  return `<div class="page container">
+    <p class="backlink" onclick="go('home')">← Back to Home</p>
+    <h2>Change Log</h2>
+    <p class="sub">This system is a raw ops log, not a rendered web page — access requires an authenticated session.</p>
+    <div class="terminal">
+      <div class="tline">ssh ops-log@evilcorp.internal</div>
+      <div class="tline">Engineering clearance or higher required.</div>
+      <div class="termrow"><span class="tprompt">login:</span> <input type="text" id="tu" autocomplete="off" spellcheck="false"></div>
+      <div class="termrow"><span class="tprompt">password:</span> <input type="password" id="tp"></div>
+      <button onclick="attemptTerminal()">connect</button>
+      <div class="tmsg" id="termMsg"></div>
+    </div>
+  </div>`;
+}
+async function attemptTerminal(){
+  const u = document.getElementById("tu").value.trim();
+  const p = document.getElementById("tp").value;
+  const msg = document.getElementById("termMsg");
+  if(!u || !p){ return; }
+  const hash = await sha256(u + "|" + p);
+  const match = CRED_HASHES[hash];
+  if(!match || match.level < 2){ msg.textContent = "Permission denied."; return; }
+  termAuthed = true;
+  render();
+}
+
+/* ---------- leadership (flag 14) ---------- */
+const EXECS = [
+  {name:"Marina Höglund", title:"Chief Operating Officer", note:"Oversees day-to-day operations across all three entities, with a particular focus on keeping LiveCorp's shift-based schedule from colliding with the consulting side's project cadence."},
+  {name:"Elliot Bramwell", title:"Chief Financial Officer", note:"Joined from a prior role at a regional MSSP, where he ran finance for a similarly structured multi-entity holding company."},
+  {name:"Daniel Reyes", title:"Vice President", note:null, real:true},
+  {name:"Nadia Farouk", title:"Chief Technology Officer", note:"Leads the platform architecture across LiveCorp and EvilCorp, and sits in on Granularity's tooling evaluations as well."},
+  {name:"Owen Castellan", title:"Chief Revenue Officer", note:"Handles enterprise accounts and renewal strategy across all three entities' client relationships."},
+  {name:"Priya Lindqvist", title:"Chief of Staff", note:"Coordinates across leadership calendars and board prep, and is usually the first point of contact for cross-entity scheduling conflicts."},
+  {name:"Samuel Okoye", title:"VP of Operations", note:"Oversees the operational side of engagement delivery, separate from the technical delivery leads within each team."},
+  {name:"Greta Lindqvist", title:"General Counsel", note:"Handles contracts, compliance review, and the rules-of-engagement sign-off process for every engagement."}
+];
+function leadershipHTML(){
+  const cards = EXECS.map((e, i) => {
+    let detail;
+    if(e.real){
+      detail = `Daniel Reyes — VP. Personal note left in this record: personal email d.reyes77@mailbox.example, lives in West Lake Hills, TX, drives a black Audi Q5. Should have been scrubbed before this page went live.` + flagbox('f14','📋 Record note — click to confirm');
+    } else {
+      detail = e.note || "No additional notes on file for this record.";
+    }
+    return `<div class="execcard" onclick="toggleExec(${i})"><h3>${e.name}</h3><p>${e.title}</p>
+      <div class="execdetail" id="execdetail-${i}">${detail}</div></div>`;
+  }).join("");
+  return `<div class="page container"><h2>Leadership</h2>
+    <p class="sub">Executive team across Granularity's entities. Click a card for any notes on file.</p>
+    <div class="grid3">${cards}</div></div>`;
+}
+function toggleExec(i){ document.getElementById("execdetail-" + i).classList.toggle("open"); }
+
+/* ---------- restricted / VP-only inner gate (flag 15) ---------- */
+let vpAuthed = false;
+function orgChartSVG(){
+  return `<svg viewBox="0 0 640 320" width="100%" style="max-width:640px;margin:20px 0" xmlns="http://www.w3.org/2000/svg">
+    <rect x="240" y="10" width="160" height="46" rx="4" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="320" y="38" text-anchor="middle" fill="var(--ink)" font-size="13" font-family="Archivo">Executive Leadership</text>
+    <line x1="320" y1="56" x2="320" y2="90" stroke="var(--line)" stroke-width="1.5"/>
+    <line x1="80" y1="90" x2="560" y2="90" stroke="var(--line)" stroke-width="1.5"/>
+    <line x1="80" y1="90" x2="80" y2="110" stroke="var(--line)" stroke-width="1.5"/>
+    <line x1="320" y1="90" x2="320" y2="110" stroke="var(--line)" stroke-width="1.5"/>
+    <line x1="560" y1="90" x2="560" y2="110" stroke="var(--line)" stroke-width="1.5"/>
+    <rect x="10" y="110" width="140" height="46" rx="4" fill="none" stroke="var(--line)" stroke-width="1.5"/>
+    <text x="80" y="138" text-anchor="middle" fill="var(--ink)" font-size="12.5" font-family="Archivo">Granularity</text>
+    <rect x="250" y="110" width="140" height="46" rx="4" fill="none" stroke="var(--line)" stroke-width="1.5"/>
+    <text x="320" y="138" text-anchor="middle" fill="var(--ink)" font-size="12.5" font-family="Archivo">LiveCorp</text>
+    <rect x="490" y="110" width="140" height="46" rx="4" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="560" y="138" text-anchor="middle" fill="var(--ink)" font-size="12.5" font-family="Archivo">EvilCorp</text>
+    <text x="80" y="176" text-anchor="middle" fill="var(--muted)" font-size="11">Consulting &amp; advisory</text>
+    <text x="320" y="176" text-anchor="middle" fill="var(--muted)" font-size="11">Managed detection</text>
+    <text x="560" y="176" text-anchor="middle" fill="var(--muted)" font-size="11">Offensive security</text>
+  </svg>`;
+}
+function restrictedHTML(){
+  if(vpAuthed){
+    return `<div class="page container">
+      <h2>Reporting Structure</h2>
+      <p class="sub">Full internal hierarchy — Executive clearance required to view, now confirmed.</p>
+      <div class="card">
+        <h3>Granularity Holdings — complete structure</h3>
+        <p>Executive leadership sits above all three entities: Granularity (consulting), LiveCorp (managed operations), and EvilCorp (offensive security). Each entity has its own operational lead reporting to the same executive layer, with day-to-day work staying siloed between entities except at that top level.</p>
+        ${orgChartSVG()}
+        ${flagbox('f15','🗂 Full hierarchy confirmed — click to log')}
+      </div>
+      <h3 class="sechead">How the pieces actually fit</h3>
+      <div class="grid2">
+        <div class="card">
+          <h3>Horizontal</h3>
+          <p>Granularity, LiveCorp, and EvilCorp sit as peers under the same executive layer — none reports to another; each runs its own operational rhythm and client relationships, coordinated rather than controlled from one side.</p>
+        </div>
+        <div class="card">
+          <h3>Vertical</h3>
+          <p>Within each entity, work flows from executive leadership down through an operational lead into delivery teams. EvilCorp's chain is shorter than the others by design — fewer layers between leadership and the people doing the engagement work.</p>
+        </div>
+      </div>
+      <div class="notebox">Executive credentials also carry clearance on Granularity's Staff Portal and LiveCorp's main gate — standard for this access tier.</div>
+    </div>`;
+  }
+  return `<div class="page container">
+    <h2>Executive Systems</h2>
+    <p class="sub">This area requires Executive (VP) clearance specifically — Engineering clearance isn't sufficient here.</p>
+    <div class="gatebox" style="margin:0;max-width:380px">
+      <label for="vu">Username</label><input type="text" id="vu" autocomplete="off" spellcheck="false">
+      <label for="vp">Password</label><input type="password" id="vp" autocomplete="off">
+      <button onclick="attemptVP()">Verify</button>
+      <div class="gate-msg" id="vpMsg"></div>
+    </div>
+  </div>`;
+}
+async function attemptVP(){
+  const u = document.getElementById("vu").value.trim();
+  const p = document.getElementById("vp").value;
+  const msg = document.getElementById("vpMsg");
+  if(!u || !p){ return; }
+  const hash = await sha256(u + "|" + p);
+  const match = CRED_HASHES[hash];
+  if(!match || match.level < 3){ msg.textContent = "Insufficient clearance."; return; }
+  vpAuthed = true;
+  render();
+}
+
+/* ---------- pages ---------- */
+const PAGES = {
+  home: { title:"Home", crumb:null, html: `
+    <header class="hero"><div class="container">
+      <p class="eyebrow">Offensive Security Practice</p>
+      <h1>We operate where the engagement gets real.</h1>
+      <p class="lede">EvilCorp is Granularity's offensive security arm — adversary simulation, red-team operations, and the harder end of the engagement work that doesn't fit neatly under a consulting banner.</p>
+      <div class="stat-row">
+        <div class="stat"><b>12</b><span>active operators</span></div>
+        <div class="stat"><b>3</b><span>entities under one roof</span></div>
+      </div>
+    </div></header>
+    <div class="page container">
+      <h3 class="sechead">Internal systems</h3>
+      <div class="grid3">
+        <div class="card"><h3>Notifications</h3><p>General system and account notices.</p></div>
+        <div class="card"><h3>Leadership</h3><p>Executive team across all three entities.</p></div>
+        <div class="card"><h3>Executive Systems</h3><p>Restricted — see footer.</p></div>
+      </div>
+      <h3 class="sechead">What this team runs</h3>
+      <div class="grid3">
+        <div class="card"><h3>Adversary simulation</h3><p>Multi-week operations modeling a specific threat actor against mature targets.</p></div>
+        <div class="card"><h3>Red team ops</h3><p>Full-scope engagements spanning technical, physical, and human attack surface.</p></div>
+        <div class="card"><h3>Internal tooling</h3><p>Custom tradecraft tooling built and maintained in-house rather than bought off the shelf.</p></div>
+      </div>
+      <h3 class="sechead">A note on access</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">Most of what's on this site assumes you already have a reason to be here. If something looks locked, it probably is — and if it isn't, that's worth mentioning to ops rather than assuming it's fine.</p>
+    </div>`
+  },
+  about: { title:"About", crumb:"About", html: `
+    <div class="page container">
+      <h2>About EvilCorp</h2>
+      <p class="sub">The offensive security practice operating alongside Granularity and LiveCorp under the same holding structure.</p>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">Kept deliberately separate, operationally and in branding, from the consulting-facing side of the business — adversary simulation work benefits from a harder operational posture than client advisory does, and running it under its own identity makes that split cleaner.</p>
+      <h3 class="sechead">Operational posture</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">Engagements here tend to run longer and with less day-to-day client visibility than Granularity's consulting work — by design, since the whole point is simulating what a real adversary would actually encounter, not a sanitized version of it.</p>
+      <h3 class="sechead">How this connects to the rest of the business</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">The relationship between the three entities isn't advertised publicly in the same way the entities themselves are — most clients interact with one brand at a time, even when the work underneath is coordinated across more than one.</p>
+      <div class="notebox">Full reporting structure across all three entities is restricted to Executive clearance. Partial visibility is available elsewhere internally.</div>
+    </div>`
+  },
+  notifications: { title:"Notifications", crumb:"Notifications", html: `
+    <div class="page container">
+      <h2>System Notifications</h2>
+      <p class="sub">General system and account notices. Nothing sensitive lives here — this is the day-to-day noise feed.</p>
+      ${notificationsListHTML()}
+    </div>`
+  },
+  leadership: { title:"Leadership", crumb:"Leadership", html: leadershipHTML() },
+  restricted: { title:"Executive Systems", crumb:"Executive Systems", html: "" },
+  "ec-changelog": { title:"Change Log", crumb:"Change Log", html: "" }
+};
+
+/* ---------- router ---------- */
+function go(hash){ location.hash = hash; }
+function render(){
+  if(!currentUser) return;
+  const hash = (location.hash || "#home").replace("#","");
+  const app = document.getElementById("app");
+  const crumbWrap = document.getElementById("crumb-wrap");
+
+  if(hash === "restricted"){
+    app.innerHTML = restrictedHTML();
+    document.title = "Executive Systems — EvilCorp";
+    crumbWrap.style.display = "block";
+    document.getElementById("crumb").innerHTML = '<a onclick="go(\'home\')">Home</a> / Executive Systems';
+    window.scrollTo(0,0);
+    return;
+  }
+
+  if(hash === "ec-changelog"){
+    app.innerHTML = termAuthed ? terminalLogHTML() : terminalGateHTML();
+    document.title = "Change Log — EvilCorp";
+    crumbWrap.style.display = "block";
+    document.getElementById("crumb").innerHTML = '<a onclick="go(\'home\')">Home</a> / Change Log';
+    window.scrollTo(0,0);
+    return;
+  }
+
+  if(PAGES[hash]){
+    const page = PAGES[hash];
+    app.innerHTML = page.html;
+    document.title = page.title + " — EvilCorp";
+    if(page.crumb){
+      crumbWrap.style.display = "block";
+      document.getElementById("crumb").innerHTML = '<a onclick="go(\'home\')">Home</a> / ' + page.crumb;
+    } else {
+      crumbWrap.style.display = "none";
+    }
+    window.scrollTo(0,0);
+    return;
+  }
+
+  if(DECOY_CONTENT[hash]){
+    app.innerHTML = decoyHTML(hash);
+    document.title = DECOY_CONTENT[hash].title + " — EvilCorp";
+    crumbWrap.style.display = "block";
+    document.getElementById("crumb").innerHTML = '<a onclick="go(\'home\')">Home</a> / ' + DECOY_CONTENT[hash].title;
+    window.scrollTo(0,0);
+    return;
+  }
+
+  app.innerHTML = PAGES.home.html;
+  document.title = "Home — EvilCorp";
+  crumbWrap.style.display = "none";
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange", render);
+</script>
+</body>
+</html>

@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LiveCorp — Managed Detection &amp; Live Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffffff; --surface:#f6f6f5; --line:#e4e4e4; --ink:#13161a; --muted:#5b6066;
+  --accent:#2d4a5e; --accent-soft:#eef2f4; --good:#3f7a57; --bad:#a8463a; color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#13161a; --surface:#1a1e23; --line:#2a2f35; --ink:#eceef0; --muted:#9aa2a9;
+    --accent:#6fa0bd; --accent-soft:#1d2a31; --good:#5fa37a; --bad:#c76a5a; color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;line-height:1.6;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+h1,h2,h3{font-family:Archivo,sans-serif;margin:0;letter-spacing:-0.01em}
+a{color:var(--accent)}
+.container{max-width:1020px;margin:0 auto;padding:0 24px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+
+/* gate screen */
+.gatewrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.gatebox{max-width:380px;width:100%;border:1px solid var(--line);border-radius:5px;padding:36px}
+.gatebox .brand{font-family:Archivo;font-weight:800;font-size:20px;margin-bottom:4px}
+.gatebox p.tag{color:var(--muted);font-size:13.5px;margin:0 0 26px}
+.gatebox label{display:block;font-size:13px;font-weight:600;margin:14px 0 6px}
+.gatebox input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:3px;font:inherit;background:var(--bg);color:var(--ink)}
+.gatebox button{margin-top:22px;width:100%;padding:11px;border:none;border-radius:3px;background:var(--ink);color:var(--bg);font:inherit;font-weight:600;cursor:pointer}
+.gate-msg{font-size:13px;margin-top:12px;min-height:16px;color:var(--bad)}
+
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.navrow{display:flex;align-items:center;justify-content:space-between;max-width:1020px;margin:0 auto;padding:16px 24px;gap:16px;flex-wrap:wrap}
+.brand{font-family:Archivo;font-weight:800;font-size:19px;cursor:pointer}
+.navlinks{display:flex;gap:20px;flex-wrap:wrap}
+.navlinks a{color:var(--ink);text-decoration:none;font-size:14px;font-weight:500;cursor:pointer}
+.navlinks a:hover{color:var(--accent)}
+.whoami{font-size:12.5px;color:var(--muted)}
+.crumb{color:var(--muted);font-size:13px;margin:28px 0 -8px}
+.crumb a{color:var(--muted);cursor:pointer}
+.crumb a:hover{color:var(--accent)}
+
+.hero{padding:64px 0 48px;border-bottom:1px solid var(--line);background:var(--surface)}
+.eyebrow{color:var(--muted);font-size:13.5px;margin:0 0 14px}
+.hero h1{font-size:clamp(28px,4.6vw,44px);line-height:1.08;max-width:16ch}
+.hero p.lede{max-width:56ch;color:var(--muted);font-size:16px;margin:18px 0 0}
+.stat-row{display:flex;gap:36px;margin-top:32px;flex-wrap:wrap}
+.stat b{font-family:Archivo;font-size:26px;display:block}
+.stat span{color:var(--muted);font-size:13px}
+
+.page{padding:52px 0 68px}
+.page h2{font-size:26px;margin-bottom:8px}
+.page h3.sechead{font-size:18px;margin:38px 0 6px}
+.page p.sub{color:var(--muted);max-width:60ch;margin:0 0 28px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media(max-width:720px){.grid2,.grid3{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:4px;padding:20px}
+.card h3{font-size:16px;margin-bottom:6px}
+.card p{color:var(--muted);font-size:14px;margin:0}
+.piplist{list-style:none;padding:0;margin:0;color:var(--muted);font-size:13.5px}
+.piplist li{padding:6px 0;border-bottom:1px solid var(--line)}
+.notebox{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:16px 18px;font-size:13.5px;color:var(--muted);margin-top:16px}
+.linklist a{display:block;padding:14px 0;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink);font-weight:600;cursor:pointer;font-size:14.5px}
+.linklist a:last-child{border-bottom:none}
+.linklist a:hover{color:var(--accent)}
+
+.flagbox{border:1px dashed var(--accent);background:var(--accent-soft);border-radius:4px;padding:12px 16px;margin:18px 0;font-size:13.5px;cursor:pointer;user-select:none}
+.flagbox .label{font-weight:600;color:var(--accent)}
+.flagbox .reveal{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin-top:8px;display:none;color:var(--ink)}
+.flagbox.open .reveal{display:block}
+
+/* redaction */
+.redact{background:var(--ink);color:transparent;border-radius:2px;padding:0 3px;cursor:pointer;transition:none}
+.redact.revealed{background:var(--accent-soft);color:var(--accent);font-weight:600}
+
+/* directory table */
+.dirtable{width:100%;border-collapse:collapse;font-size:13.5px}
+.dirtable th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);color:var(--muted);font-weight:600;font-size:12px}
+.dirtable td{padding:8px 10px;border-bottom:1px solid var(--line)}
+.dirtable tr.dirrow{cursor:pointer}
+.dirtable tr.dirrow:hover{background:var(--surface)}
+.dirdetail{display:none}
+.dirdetail.open{display:table-row}
+.dirdetail td{background:var(--surface);font-size:13px;color:var(--muted)}
+
+/* comments */
+.comment{border-left:2px solid var(--line);padding-left:14px;margin:14px 0}
+.comment .meta{font-size:12.5px;color:var(--muted);margin-bottom:3px}
+.comment .body{font-size:14px}
+.comment .replies{margin-left:18px}
+.showmore{font-size:12.5px;color:var(--muted);cursor:pointer;margin:6px 0 0 18px;display:inline-block}
+.showmore:hover{color:var(--accent)}
+
+/* github-style profile */
+.ghwrap{display:grid;grid-template-columns:220px 1fr;gap:32px}
+@media(max-width:720px){.ghwrap{grid-template-columns:1fr}}
+.ghavatar{width:180px;height:180px;border-radius:50%;background:linear-gradient(135deg,#2d4a5e,#8fa6b3);margin-bottom:14px}
+.ghmeta{font-size:13px;color:var(--muted)}
+.ghmeta div{padding:4px 0}
+.repolist .repo{border:1px solid var(--line);border-radius:4px;padding:14px 16px;margin-bottom:10px;cursor:pointer}
+.repolist .repo:hover{border-color:var(--accent)}
+.repolist .repo h4{font-size:14.5px;margin:0 0 4px;font-family:Archivo}
+.repolist .repo p{color:var(--muted);font-size:13px;margin:0}
+.filebrowser{border:1px solid var(--line);border-radius:4px;margin-top:16px}
+.filelist{list-style:none;margin:0;padding:0}
+.filelist li{padding:9px 14px;border-bottom:1px solid var(--line);cursor:pointer;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.filelist li:last-child{border-bottom:none}
+.filelist li:hover{background:var(--surface);color:var(--accent)}
+.filecontent{padding:16px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre-wrap;color:var(--ink);border-top:1px solid var(--line);background:var(--surface)}
+.backlink{font-size:13px;color:var(--muted);cursor:pointer}
+
+footer{padding:44px 0 56px;border-top:1px solid var(--line);margin-top:20px}
+.footer-note{color:var(--muted);font-size:13px;margin-bottom:20px}
+.footer-links{columns:4;column-gap:20px;font-size:11.5px}
+@media(max-width:720px){.footer-links{columns:2}}
+.footer-links a{display:block;color:var(--muted);text-decoration:none;padding:3px 0;cursor:pointer;break-inside:avoid}
+.footer-links a:hover{color:var(--accent)}
+.copyright{color:var(--muted);font-size:11.5px;margin-top:24px}
+</style>
+</head>
+<body>
+
+<div id="gateScreen" class="gatewrap">
+  <div class="gatebox">
+    <div class="brand">LIVECORP</div>
+    <p class="tag">Internal operations portal. Staff access only.</p>
+    <label for="gu">Username</label>
+    <input type="text" id="gu" autocomplete="off" spellcheck="false">
+    <label for="gp">Password</label>
+    <input type="password" id="gp" autocomplete="off">
+    <button onclick="attemptGate()">Sign in</button>
+    <div class="gate-msg" id="gateMsg"></div>
+  </div>
+</div>
+
+<div id="siteRoot" style="display:none">
+<nav>
+  <div class="navrow">
+    <div class="brand" onclick="go('home')">LIVECORP</div>
+    <div class="navlinks">
+      <a onclick="go('home')">Home</a>
+      <a onclick="go('about')">About</a>
+      <a onclick="go('team')">Team</a>
+      <a onclick="go('engineering')">Engineering</a>
+      <a onclick="go('blog')">Blog</a>
+    </div>
+    <span class="whoami" id="whoami"></span>
+  </div>
+</nav>
+
+<div class="container" id="crumb-wrap" style="display:none"><p class="crumb" id="crumb"></p></div>
+<div id="app"></div>
+
+<footer class="container">
+  <p class="footer-note">LiveCorp — a Granularity company.</p>
+  <div class="footer-links" id="footerLinks"></div>
+  <p class="copyright">© LiveCorp. Internal training environment — fictional company, fictional data.</p>
+</footer>
+</div>
+
+<script>
+/* ---------- auth gate ---------- */
+const CRED_HASHES = {
+  "31cd361906da687145d9388a8b981cedc5d07decde474f9bef24364787f46fcd": {level:1, name:"Marcus Whitfield", role:"HR"},
+  "0b54ba499b015209f84de1f445e0c8235dfb319dc2fd118db9b3183e91b902aa": {level:2, name:"Priya Suresh", role:"Engineering"},
+  "8ab4345d22b7be1a3fca599fdde58abaa6974de091cc1ceaf7b745db7e9d8b3e": {level:3, name:"Daniel Reyes", role:"VP"}
+};
+async function sha256(text){
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest("SHA-256", enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+}
+let currentUser = null;
+async function attemptGate(){
+  const u = document.getElementById("gu").value.trim();
+  const p = document.getElementById("gp").value;
+  const msg = document.getElementById("gateMsg");
+  if(!u || !p){ return; }
+  const hash = await sha256(u + "|" + p);
+  const match = CRED_HASHES[hash];
+  if(!match){ msg.textContent = "Invalid credentials."; return; }
+  currentUser = match;
+  document.getElementById("gateScreen").style.display = "none";
+  document.getElementById("siteRoot").style.display = "block";
+  document.getElementById("whoami").textContent = "Signed in as " + match.name;
+  render();
+}
+
+/* ---------- flag reveal ---------- */
+const FLAGS = {
+  f7: "U0V7ZTVhY2Y1MTE2ZGUxZjE1NH0=",
+  f8: "U0V7MWVmMTQ3OWMzZmIyZmUxOH0=",
+  f10: "U0V7YzljZDg0NGMwMWVlNzgxMX0=",
+  f12: "U0V7MTY2NDZiODkzMWQxYzM0Nn0=",
+  f13: "U0V7YjA3ZWM1YTI0M2M4ZDk0MH0="
+};
+function flagbox(key, label){
+  return '<div class="flagbox" onclick="toggleFlag(this,\''+key+'\')"><span class="label">'+label+'</span><div class="reveal"></div></div>';
+}
+function toggleFlag(el, key){
+  const reveal = el.querySelector(".reveal");
+  if(!el.classList.contains("open")){ reveal.textContent = "Flag: " + atob(FLAGS[key]); }
+  el.classList.toggle("open");
+}
+
+/* ---------- footer maze ---------- */
+const FOOTER_LINKS = [
+  {label:"Privacy Policy", hash:"lc-privacy"},
+  {label:"Status", hash:"lc-status"},
+  {label:"SLA", hash:"lc-sla"},
+  {label:"Team", hash:"team"},
+  {label:"Data Processing Agreement", hash:"lc-dpa"},
+  {label:"Incident History", hash:"lc-incidents"},
+  {label:"Client Portal", hash:"lc-clientportal"},
+  {label:"Subprocessors", hash:"lc-subprocessors"},
+  {label:"Security Advisories", hash:"lc-advisories"},
+  {label:"Engineering", hash:"engineering"},
+  {label:"Bug Bounty", hash:"lc-bugbounty"},
+  {label:"Integrations", hash:"lc-integrations"},
+  {label:"Changelog", hash:"lc-changelog"},
+  {label:"Support", hash:"lc-support"},
+  {label:"Documentation", hash:"lc-docs"},
+  {label:"Compliance", hash:"lc-compliance"},
+  {label:"Cookie Policy", hash:"lc-cookies"},
+  {label:"Terms of Service", hash:"lc-terms"},
+  {label:"Press", hash:"press"},
+  {label:"Brand Assets", hash:"lc-brand"},
+  {label:"Blog", hash:"blog"},
+  {label:"RSS Feed", hash:"lc-rss"},
+  {label:"About", hash:"about"},
+  {label:"Uptime Report", hash:"lc-uptime"}
+];
+const REAL_HASHES = new Set(["team","engineering","press","blog","about"]);
+const DECOY = {};
+FOOTER_LINKS.forEach(l => { if(!REAL_HASHES.has(l.hash)) DECOY[l.hash] = l.label; });
+document.getElementById("footerLinks").innerHTML = FOOTER_LINKS.map(l => '<a onclick="go(\''+l.hash+'\')">'+l.label+'</a>').join("");
+function decoyHTML(title){
+  return `<div class="page container"><h2>${title}</h2>
+    <p class="sub">This page is still being migrated over from our old internal docs site. Most of what you're looking for probably lives under Home, About, or Team.</p>
+    <div class="notebox">If this is urgent, reach out through the usual internal channel rather than waiting on this page.</div>
+  </div>`;
+}
+
+/* ---------- blog: 35 posts, 20-30 comments each, flag buried mid-thread in one ---------- */
+const BLOG_TOPICS = [
+  "alert routing","on-call scheduling","the staging environment","log retention","the internal wiki",
+  "the deployment pipeline","incident reviews","the monitoring dashboard","shift handoff notes","the ticketing queue",
+  "client reporting exports","the VPN gateway","backup verification","the status page","on-call escalation",
+  "the SOC playbook","access reviews","the config management repo","alerting thresholds","patch scheduling",
+  "the data retention policy","the client Slack bridge","runbook documentation","the on-call phone rotation",
+  "the audit log pipeline","the secrets rotation process","the internal metrics dashboard","the escalation matrix",
+  "the change management process","the on-call compensation policy","the incident postmortem template",
+  "the client handoff checklist","the internal status bot","the weekend coverage schedule","the quarterly tabletop exercise"
+];
+const TITLE_TPL = ["Thoughts on {t}","A Quick Update on {t}","What We Changed About {t}","Revisiting {t}","Notes on {t}"];
+const BODY1_TPL = [
+  "We spent part of this quarter reworking {t}, mostly in response to feedback from the last few shift handoffs.",
+  "{T} has been due for a refresh for a while, and we finally carved out time to do it properly.",
+  "A few small but overdue changes landed around {t} this cycle.",
+  "This one's a shorter post — just a quick note on where {t} stands after last sprint's changes.",
+  "Nothing dramatic here, just documenting the latest round of changes to {t} for anyone who missed the standup."
+];
+const BODY2_TPL = [
+  "So far the feedback from the team has been positive, though it's still early.",
+  "We'll likely revisit this again before end of quarter once we've got more data.",
+  "If anything breaks because of this, flag it in the usual channel rather than assuming it's expected.",
+  "Nothing here should affect client-facing systems directly.",
+  "More detail is in the internal wiki for anyone who wants the full changelog."
+];
+function titleCase1(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+const BLOG_POSTS = BLOG_TOPICS.map((t, i) => {
+  const title = TITLE_TPL[i % TITLE_TPL.length].replace("{t}", t);
+  const body = BODY1_TPL[i % BODY1_TPL.length].replace("{t}", t).replace("{T}", titleCase1(t)) + " " +
+               BODY2_TPL[(i + 2) % BODY2_TPL.length];
+  return { title, body };
+});
+const COMMENT_AUTHORS = [
+  "r.ocasio","d.whitaker","m.whitfield","p.suresh","k.osei","l.marchetti","q.beaumont","s.vargas","t.lindgren",
+  "u.adeyemi","v.kowalski","w.bianchi","x.renaud","y.solberg","z.mbeki","a.furuya","b.castellanos",
+  "c.winterbourne","d.okafor","e.sharma","f.moreno","g.lindholm","h.varga","i.ackerman","j.boucher"
+];
+const COMMENT_LINES = [
+  "Good writeup, thanks for documenting this.",
+  "Did this affect the weekend on-call rotation at all?",
+  "We saw something similar on our side a few months back.",
+  "Is there a ticket link for this anywhere?",
+  "This explains a weird alert I saw last week, thanks.",
+  "Appreciate the transparency here, makes planning easier.",
+  "Curious if this changes anything for the client-facing side.",
+  "Nice, this has been annoying for a while.",
+  "Any chance this gets backported to the older environments too?",
+  "Solid change, long overdue honestly.",
+  "This matches what we talked about in standup last week.",
+  "Who do we loop in if something related comes up over the weekend?",
+  "Good to have this written down somewhere searchable.",
+  "Does this need a mention in the client-facing changelog too?",
+  "Thanks for the heads up, updating my notes now.",
+  "This lines up with what I saw in the metrics dashboard yesterday.",
+  "Following up on this in the team channel as well.",
+  "Appreciate someone finally writing this down properly.",
+  "Quick question — does this apply to the legacy accounts too?",
+  "Noted, thanks for flagging this before it became a bigger issue."
+];
+const FLAG_POST_INDEX = 17;
+function buildThread(postIndex){
+  const total = 20 + ((postIndex * 7) % 11);
+  const allNodes = [];
+  const roots = [];
+  for(let i = 0; i < total; i++){
+    const author = COMMENT_AUTHORS[(postIndex + i) % COMMENT_AUTHORS.length];
+    const body = COMMENT_LINES[(postIndex * 3 + i) % COMMENT_LINES.length];
+    const node = { author, body, age: (total - i) + "mo ago", children: [] };
+    if(i === 0 || i % 4 === 0){
+      roots.push(node);
+    } else {
+      const parentIdx = (i % 3 === 0) ? (allNodes.length - 1) : ((i * 5) % allNodes.length);
+      allNodes[parentIdx].children.push(node);
+    }
+    allNodes.push(node);
+  }
+  if(postIndex === FLAG_POST_INDEX){
+    const mid = allNodes[Math.floor(allNodes.length / 2)];
+    mid.author = "m.whitfield";
+    mid.body = "Unrelated to this thread, but did anyone else catch the press release that went out today? Wasn't expecting that name to be the one behind the curtain.";
+    mid.flagged = true;
+  }
+  return roots;
+}
+function renderCommentNode(node){
+  let html = `<div class="comment"><div class="meta"><strong>${node.author}</strong> · ${node.age}</div><div class="body">${node.body}</div>`;
+  if(node.flagged){ html += flagbox('f8','💬 Buried in this thread — click to confirm'); }
+  if(node.children.length){
+    const n = node.children.length;
+    html += `<span class="showmore" onclick="this.nextElementSibling.style.display='block';this.style.display='none'">Show ${n} ${n === 1 ? "reply" : "replies"}</span>`;
+    html += `<div class="replies" style="display:none">` + node.children.map(renderCommentNode).join("") + `</div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+function commentsHTML(postIndex){
+  const roots = buildThread(postIndex);
+  return `<span class="showmore" onclick="this.nextElementSibling.style.display='block';this.style.display='none'" style="margin-left:0">Show ${roots.length} comments</span>` +
+    `<div class="replies" style="display:none;margin-left:0">` + roots.map(renderCommentNode).join("") + `</div>`;
+}
+function blogPostHTML(i){
+  const post = BLOG_POSTS[i];
+  const cCount = 20 + ((i * 7) % 11);
+  return `<div class="page container">
+    <p class="backlink" onclick="go('blog')">← Back to Blog</p>
+    <h2>${post.title}</h2>
+    <p>${post.body}</p>
+    <h3 class="sechead">Comments (${cCount})</h3>
+    ${commentsHTML(i)}
+  </div>`;
+}
+
+/* ---------- team directory (buried flag 12) ---------- */
+const DIRECTORY_NAMES = [
+  "A. Castillo","B. Nakamura","C. Delgado","D. Whitaker","E. Okonkwo","F. Larsen","G. Petrov","H. Abara",
+  "I. Novak","J. Lindqvist","K. Osei","L. Marchetti","M. Whitfield","N. Fitzgerald","O. Haddad","P. Suresh",
+  "Q. Beaumont","R. Ocasio","S. Vargas","T. Lindgren","U. Adeyemi","V. Kowalski","W. Bianchi","X. Renaud",
+  "Y. Solberg","Z. Mbeki","A. Furuya","B. Castellanos","C. Winterbourne","D. Okafor","E. Sharma","F. Moreno",
+  "G. Lindholm","H. Varga","I.Ackerman","J. Boucher","K. Reinholt","L. Abiodun","M. Castaneda","N. Vogt",
+  "O. Delacroix","P. Nkemelu","Q. Hartigan","R. Suominen","S. Falkner","T. Obrador","U. Lindstrom","V. Achebe",
+  "W. Dubois","X. Haruki"
+];
+const ROLE_CODES = ["EN","OP","SA","MK","PL","IT","FN","LG","QA","PR","CS","DS"];
+function directoryHTML(){
+  let rows = "";
+  DIRECTORY_NAMES.forEach((name, i) => {
+    const isHR = name === "M. Whitfield";
+    const code = isHR ? "HR" : ROLE_CODES[i % ROLE_CODES.length];
+    rows += `<tr class="dirrow" onclick="toggleDirRow(${i})"><td>${name}</td><td>${code}</td><td>${["Engineering","Operations","Sales","Marketing","Platform","IT","Finance","Legal"][i % 8]}</td></tr>`;
+    rows += `<tr class="dirdetail" id="dirdetail-${i}"><td colspan="3">`;
+    if(isHR){
+      rows += `Marcus Whitfield — HR Generalist. Personal note left in this record from an old data migration: personal email mwhitfield88@mailbox.example, lives in Round Rock TX, drives a grey Subaru Outback. Should probably have been scrubbed before this table went anywhere near the staff portal.` + flagbox('f12','📋 Record note — click to confirm');
+    } else {
+      rows += `No additional notes on file for this record.`;
+    }
+    rows += `</td></tr>`;
+  });
+  return `<div class="page container">
+    <h2>Team Directory</h2>
+    <p class="sub">Internal staff directory, exported from HR systems. Role codes follow the standard two-letter department scheme. Click a row for any notes on file.</p>
+    <table class="dirtable"><thead><tr><th>Name</th><th>Role</th><th>Department</th></tr></thead><tbody>${rows}</tbody></table>
+  </div>`;
+}
+function toggleDirRow(i){
+  document.getElementById("dirdetail-" + i).classList.toggle("open");
+}
+
+/* ---------- fake github-style dev profile (flags 10 + 13) ---------- */
+const REPOS = [
+  {id:"pentest-notes", name:"pentest-notes", desc:"Scratch notes from CTFs and practice ranges, nothing client-related.",
+   files:[
+     {name:"README.md", content:"Just personal notes, nothing sensitive here. See ctf-writeups for the cleaned-up version of most of this."},
+     {name:"recon-checklist.md", content:"- whois\n- subdomain enum\n- tech fingerprinting\n- content discovery\n- auth flow mapping"}
+   ]},
+  {id:"ctf-writeups", name:"ctf-writeups", desc:"Write-ups from a regional CTF a few of us did last year.",
+   files:[
+     {name:"README.md", content:"Writeups from a regional CTF, placed top 10 overall as a team."},
+     {name:"web-challenges.md", content:"## Web 200 - 'Login Bypass'\nClassic SQLi in the login form, nothing exotic.\n\n## Web 400 - 'Token Trouble'\nJWT with alg:none accepted by the backend. Rookie mistake, fun to find."}
+   ]},
+  {id:"dotfiles", name:"dotfiles", desc:"Shell and editor config, the usual.",
+   files:[
+     {name:".vimrc", content:"set number\nsyntax on\nset tabstop=2\nset shiftwidth=2"},
+     {name:".zshrc", content:"export PATH=$HOME/bin:$PATH\nalias ll='ls -la'\nalias gs='git status'"}
+   ]},
+  {id:"home-lab-scripts", name:"home-lab-scripts", desc:"Random scripts for my home lab / self-hosted stuff. Not work-related.",
+   files:[
+     {name:"README.md", content:"Assorted scripts for my home server. Use at your own risk, zero warranty."},
+     {name:"backup.sh", content:"#!/bin/bash\n# nightly backup cron\nrsync -a /data/ /mnt/backup/\necho \"backup done: $(date)\""},
+     {name:"docker-compose.yml", content:"version: '3'\nservices:\n  app:\n    image: nginx\n    ports:\n      - '8080:80'"},
+     {name:"deploy_notes.txt", content:"random notes to self —\n\nremember homelab vpn creds live in the password manager, NOT in this repo.\n\nold test account from way back, deprecated, forgot to delete it when I cleaned this up:\nuser: psuresh\npass: GitPush99!\n\n(this was just for a local staging box, not anything real — still, should delete this file)"}
+   ]}
+];
+let activeRepo = null;
+function devGithubHTML(){
+  activeRepo = null;
+  return `<div class="page container">
+    <p class="backlink" onclick="go('engineering')">← Back to Engineering</p>
+    <div class="ghwrap">
+      <div>
+        <div class="ghavatar"></div>
+        <div class="ghmeta">
+          <div><strong>psuresh-dev</strong></div>
+          <div>Priya Suresh</div>
+          <div>📍 Austin, TX</div>
+          <div>🔗 priya-suresh.dev</div>
+          <div>Joined 2019</div>
+        </div>
+      </div>
+      <div>
+        <h3 class="sechead" style="margin-top:0">About</h3>
+        <p style="color:var(--muted);font-size:14px;max-width:56ch">Backend engineer on the LiveCorp platform team. Outside of work: bouldering, bad ramen takes, and an unreasonable number of half-finished home lab projects. Personal site is mostly a dumping ground for the latter.</p>
+        ${flagbox('f13','👤 Profile details — click to confirm')}
+        <h3 class="sechead">Repositories</h3>
+        <div class="repolist" id="repoList"></div>
+        <div id="repoDetail"></div>
+      </div>
+    </div>
+  </div>`;
+}
+function renderRepoList(){
+  const list = document.getElementById("repoList");
+  if(!list) return;
+  list.innerHTML = REPOS.map(r => `<div class="repo" onclick="openRepo('${r.id}')"><h4>${r.name}</h4><p>${r.desc}</p></div>`).join("");
+  document.getElementById("repoDetail").innerHTML = "";
+}
+function openRepo(id){
+  activeRepo = REPOS.find(r => r.id === id);
+  const detail = document.getElementById("repoDetail");
+  detail.innerHTML = `<div class="filebrowser"><ul class="filelist">` +
+    activeRepo.files.map((f,i) => `<li onclick="openFile(${i})">${f.name}</li>`).join("") +
+    `</ul><div id="fileContent"></div></div>`;
+}
+function openFile(i){
+  const f = activeRepo.files[i];
+  document.getElementById("fileContent").innerHTML =
+    `<div class="filecontent">${f.content.replace(/</g,"&lt;")}</div>` +
+    (f.name === "deploy_notes.txt" ? flagbox('f10','🔑 Credential found in file — click to confirm') : "");
+}
+
+/* ---------- engineering team (flags 10 + 13 buried among decoy engineers) ---------- */
+const ENGINEERS = [
+  {id:"jcho", name:"Jordan Cho", title:"Platform Engineer", loc:"Remote", joined:"2022", fact:"Still maintains a mechanical keyboard spreadsheet nobody asked for."},
+  {id:"abennett", name:"Amara Bennett", title:"Site Reliability Engineer", loc:"Austin, TX", joined:"2021", fact:"Runs the internal trivia night, undefeated three years running."},
+  {id:"tnakashima", name:"Theo Nakashima", title:"Platform Engineer", loc:"Remote", joined:"2023", fact:"Briefly convinced the deploy bot to post exclusively in haiku. It did not go over well."},
+  {id:"psuresh", name:"Priya Suresh", title:"Backend Engineer", loc:"Austin, TX", joined:"2019", fact:null, real:true},
+  {id:"rfontaine", name:"Remy Fontaine", title:"Infrastructure Engineer", loc:"Remote", joined:"2020", fact:"Has opinions about tabs vs. spaces that are, generously, strong."},
+  {id:"kolawale", name:"Kemi Olawale", title:"Platform Engineer", loc:"Austin, TX (Hybrid)", joined:"2022", fact:"Brings cold brew for the whole floor every other Friday."},
+  {id:"dsvensson", name:"Dag Svensson", title:"Site Reliability Engineer", loc:"Remote", joined:"2021", fact:"Once fixed a production incident from a ski lift, allegedly."},
+  {id:"lmercer", name:"Lena Mercer", title:"Platform Engineer", loc:"Remote", joined:"2023", fact:"Keeps a running doc of every outage nickname the team has ever used."}
+];
+function engineersGridHTML(){
+  return ENGINEERS.map(e => `<div class="card" style="cursor:pointer" onclick="go('eng-${e.id}')">
+    <h3>${e.name}</h3><p>${e.title} · ${e.loc}</p>
+  </div>`).join("");
+}
+function genericEngineerHTML(e){
+  return `<div class="page container">
+    <p class="backlink" onclick="go('engineering')">← Back to Engineering</p>
+    <h2>${e.name}</h2>
+    <p class="sub">${e.title} · ${e.loc} · joined ${e.joined}</p>
+    <div class="card"><h3>About</h3><p>${e.fact}</p></div>
+  </div>`;
+}
+
+/* ---------- pages ---------- */
+const PAGES = {
+  home: { title:"Home", crumb:null, html: `
+    <header class="hero"><div class="container">
+      <p class="eyebrow">Managed Detection &amp; Live Operations</p>
+      <h1>Eyes on your environment, every hour it's running.</h1>
+      <p class="lede">LiveCorp is Granularity's managed detection subsidiary — the operational arm that watches client environments continuously between engagements.</p>
+      <div class="stat-row">
+        <div class="stat"><b>24/7</b><span>monitoring coverage</span></div>
+        <div class="stat"><b>38</b><span>active client environments</span></div>
+        <div class="stat"><b>&lt;9min</b><span>median alert triage time</span></div>
+      </div>
+    </div></header>
+    <div class="page container">
+      <h3 class="sechead">What we run</h3>
+      <div class="grid3">
+        <div class="card"><h3>Detection</h3><p>Continuous log and telemetry monitoring across client environments.</p></div>
+        <div class="card"><h3>Triage</h3><p>Human-reviewed alert triage, not just automated scoring.</p></div>
+        <div class="card"><h3>Escalation</h3><p>Direct line to Granularity's delivery team for anything that needs deeper investigation.</p></div>
+      </div>
+      <h3 class="sechead">Coverage by shift</h3>
+      <div class="grid3">
+        <div class="card"><h3>Day</h3><p>Primary monitoring window, full team available for escalation.</p></div>
+        <div class="card"><h3>Evening</h3><p>Reduced staffing, same escalation paths.</p></div>
+        <div class="card"><h3>Overnight</h3><p>On-call rotation covers this window, paging as needed.</p></div>
+      </div>
+      <h3 class="sechead">A note on this portal</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">This internal site exists for staff coordination — scheduling, team updates, and the occasional engineering write-up. Client-facing monitoring dashboards live in a separate system entirely.</p>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">If something here looks out of date, it probably is — this portal gets rebuilt faster than it gets re-documented. Flag anything stale to ops rather than assuming it's intentional.</p>
+    </div>`
+  },
+  about: { title:"About", crumb:"About", html: `
+    <div class="page container">
+      <h2>About LiveCorp</h2>
+      <p class="sub">LiveCorp was spun up in 2021 once it became clear a meaningful share of Granularity's clients wanted continuous monitoring, not just point-in-time testing.</p>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">We run on our own operational rhythm — rotating shifts, on-call coverage, the works — which doesn't map cleanly onto the project-based cadence of the consulting side. Keeping it as its own entity under the Granularity umbrella made that split easier to manage than bolting shift work onto a consulting team.</p>
+      <h3 class="sechead">Structure</h3>
+      <div class="notebox">
+        LiveCorp reports up through Granularity's leadership rather than running fully independently. A fuller picture of how the reporting lines connect across both entities is available once you're further into internal systems — this page only covers our side of it.
+      </div>
+      <h3 class="sechead">How we're funded</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">LiveCorp operates on a mix of recurring monitoring contracts and a smaller allocation from Granularity's own operating budget, covering the overnight coverage that doesn't map neatly to a specific client bill.</p>
+      <h3 class="sechead">Office</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">We share physical space with the Granularity team rather than keeping a separate office — mostly a practical choice given how much the two teams coordinate day to day.</p>
+    </div>`
+  },
+  team: { title:"Team Directory", crumb:"Team", html: directoryHTML() },
+  engineering: { title:"Engineering", crumb:"Engineering", html: `
+    <div class="page container">
+      <h2>Engineering</h2>
+      <p class="sub">Notes from the platform team, plus profile links for anyone curious what the team works on outside of client work.</p>
+      <div class="card">
+        <h3>Platform team</h3>
+        <p>Small team, mostly backend-focused — the detection pipeline, alert routing, and the internal tooling that keeps shift handoffs sane. Eight engineers across three rough groupings: platform, SRE, and infrastructure, though in practice everyone floats between them depending on what's on fire.</p>
+      </div>
+      <h3 class="sechead">Stack</h3>
+      <div class="grid3">
+        <div class="card"><h3>Pipeline</h3><p>Event ingestion, normalization, and routing for everything the detection layer consumes.</p></div>
+        <div class="card"><h3>Infra</h3><p>Mostly containerized, orchestrated across a handful of regions for redundancy.</p></div>
+        <div class="card"><h3>Tooling</h3><p>Internal dashboards and runbook automation, built and maintained in-house.</p></div>
+      </div>
+      <h3 class="sechead">On-call</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">Weekly rotation across the full engineering team, with SRE carrying primary and platform engineers backing up as secondary. Compensation and scheduling details live in the internal wiki rather than here.</p>
+      <h3 class="sechead">Team members online</h3>
+      <div class="grid2">${engineersGridHTML()}</div>
+    </div>`
+  },
+  blog: { title:"Blog", crumb:"Blog", html: `
+    <div class="page container">
+      <h2>From the Team</h2>
+      <p class="sub">Internal-facing notes — mostly operational, occasionally a postmortem. 35 posts and counting.</p>
+      <div class="linklist"><a onclick="go('blog-post-0')">${BLOG_POSTS[0].title}</a>
+        <a onclick="go('blog-post-1')">${BLOG_POSTS[1].title}</a>
+        <a onclick="go('blog-post-2')">${BLOG_POSTS[2].title}</a>
+        <a onclick="go('blog-post-3')">${BLOG_POSTS[3].title}</a>
+        <a onclick="go('blog-post-4')">${BLOG_POSTS[4].title}</a>
+        <a onclick="go('blog-post-5')">${BLOG_POSTS[5].title}</a>
+        <a onclick="go('blog-post-6')">${BLOG_POSTS[6].title}</a>
+        <a onclick="go('blog-post-7')">${BLOG_POSTS[7].title}</a>
+        <a onclick="go('blog-post-8')">${BLOG_POSTS[8].title}</a>
+        <a onclick="go('blog-post-9')">${BLOG_POSTS[9].title}</a>
+        <a onclick="go('blog-post-10')">${BLOG_POSTS[10].title}</a>
+        <a onclick="go('blog-post-11')">${BLOG_POSTS[11].title}</a>
+        <a onclick="go('blog-post-12')">${BLOG_POSTS[12].title}</a>
+        <a onclick="go('blog-post-13')">${BLOG_POSTS[13].title}</a>
+        <a onclick="go('blog-post-14')">${BLOG_POSTS[14].title}</a>
+        <a onclick="go('blog-post-15')">${BLOG_POSTS[15].title}</a>
+        <a onclick="go('blog-post-16')">${BLOG_POSTS[16].title}</a>
+        <a onclick="go('blog-post-17')">${BLOG_POSTS[17].title}</a>
+        <a onclick="go('blog-post-18')">${BLOG_POSTS[18].title}</a>
+        <a onclick="go('blog-post-19')">${BLOG_POSTS[19].title}</a>
+        <a onclick="go('blog-post-20')">${BLOG_POSTS[20].title}</a>
+        <a onclick="go('blog-post-21')">${BLOG_POSTS[21].title}</a>
+        <a onclick="go('blog-post-22')">${BLOG_POSTS[22].title}</a>
+        <a onclick="go('blog-post-23')">${BLOG_POSTS[23].title}</a>
+        <a onclick="go('blog-post-24')">${BLOG_POSTS[24].title}</a>
+        <a onclick="go('blog-post-25')">${BLOG_POSTS[25].title}</a>
+        <a onclick="go('blog-post-26')">${BLOG_POSTS[26].title}</a>
+        <a onclick="go('blog-post-27')">${BLOG_POSTS[27].title}</a>
+        <a onclick="go('blog-post-28')">${BLOG_POSTS[28].title}</a>
+        <a onclick="go('blog-post-29')">${BLOG_POSTS[29].title}</a>
+        <a onclick="go('blog-post-30')">${BLOG_POSTS[30].title}</a>
+        <a onclick="go('blog-post-31')">${BLOG_POSTS[31].title}</a>
+        <a onclick="go('blog-post-32')">${BLOG_POSTS[32].title}</a>
+        <a onclick="go('blog-post-33')">${BLOG_POSTS[33].title}</a>
+        <a onclick="go('blog-post-34')">${BLOG_POSTS[34].title}</a>
+      </div>
+    </div>`
+  },
+  press: { title:"Press", crumb:"Press", html: `
+    <div class="page container">
+      <h2>Press Release</h2>
+      <p class="sub">Posted to the internal press archive ahead of the public announcement.</p>
+      <div class="card">
+        <h3>LiveCorp Announces Strategic Partnership</h3>
+        <p style="margin-top:10px">After months of quiet coordination, LiveCorp is formalizing a strategic partnership with <span class="redact" onclick="this.classList.toggle('revealed')">EvilCorp</span>, expanding our combined reach in offensive-adjacent managed services. Terms of the arrangement were not disclosed publicly, though internal staff have had visibility into the relationship for some time.</p>
+        <p style="color:var(--muted);font-size:13.5px;margin-top:10px">This draft hasn't gone external yet — legal is still finalizing language around the disclosure timeline, so treat this as internal-only until the public version goes out.</p>
+        ${flagbox('f7','📰 Partner name confirmed — click to log')}
+      </div>
+    </div>`
+  }
+};
+
+/* ---------- router ---------- */
+function go(hash){ location.hash = hash; }
+function render(){
+  if(!currentUser) return;
+  const hash = (location.hash || "#home").replace("#","");
+  const app = document.getElementById("app");
+  const crumbWrap = document.getElementById("crumb-wrap");
+
+  if(hash.startsWith("blog-post-")){
+    const idx = parseInt(hash.replace("blog-post-", ""), 10);
+    if(!isNaN(idx) && BLOG_POSTS[idx]){
+      app.innerHTML = blogPostHTML(idx);
+      document.title = BLOG_POSTS[idx].title + " — LiveCorp";
+      crumbWrap.style.display = "block";
+      document.getElementById("crumb").innerHTML = '<a onclick="go(\'home\')">Home</a> / <a onclick="go(\'blog\')">Blog</a> / ' + BLOG_POSTS[idx].title;
+      window.scrollTo(0,0);
+      return;
+    }
+  }
+
+  if(hash.startsWith("eng-")){
+    const id = hash.replace("eng-", "");
+    const eng = ENGINEERS.find(e => e.id === id);
+    if(eng){
+      if(eng.real){
+        app.innerHTML = devGithubHTML();
+        document.title = "psuresh-dev — LiveCorp";
+        crumbWrap.style.display = "block";
+        document.getElementById("crumb").innerHTML = '<a onclick="go(\'home\')">Home</a> / <a onclick="go(\'engineering\')">Engineering</a> / psuresh-dev';
+        window.scrollTo(0,0);
+        renderRepoList();
+        return;
+      } else {
+        app.innerHTML = genericEngineerHTML(eng);
+        document.title = eng.name + " — LiveCorp";
+        crumbWrap.style.display = "block";
+        document.getElementById("crumb").innerHTML = '<a onclick="go(\'home\')">Home</a> / <a onclick="go(\'engineering\')">Engineering</a> / ' + eng.name;
+        window.scrollTo(0,0);
+        return;
+      }
+    }
+  }
+
+  if(PAGES[hash]){
+    const page = PAGES[hash];
+    app.innerHTML = page.html;
+    document.title = page.title + " — LiveCorp";
+    if(page.crumb){
+      crumbWrap.style.display = "block";
+      document.getElementById("crumb").innerHTML = '<a onclick="go(\'home\')">Home</a> / ' + page.crumb;
+    } else {
+      crumbWrap.style.display = "none";
+    }
+    window.scrollTo(0,0);
+    return;
+  }
+
+  if(DECOY[hash]){
+    app.innerHTML = decoyHTML(DECOY[hash]);
+    document.title = DECOY[hash] + " — LiveCorp";
+    crumbWrap.style.display = "block";
+    document.getElementById("crumb").innerHTML = '<a onclick="go(\'home\')">Home</a> / ' + DECOY[hash];
+    window.scrollTo(0,0);
+    return;
+  }
+
+  app.innerHTML = PAGES.home.html;
+  document.title = "Home — LiveCorp";
+  crumbWrap.style.display = "none";
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange", render);
+</script>
+</body>
+</html>

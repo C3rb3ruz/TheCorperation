@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Granularity — Cybersecurity &amp; Offensive Readiness</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffffff; --surface:#f6f6f5; --line:#e4e4e4; --ink:#13161a; --muted:#5b6066;
+  --accent:#2d4a5e; --accent-soft:#eef2f4; --good:#3f7a57; --bad:#a8463a; color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#13161a; --surface:#1a1e23; --line:#2a2f35; --ink:#eceef0; --muted:#9aa2a9;
+    --accent:#6fa0bd; --accent-soft:#1d2a31; --good:#5fa37a; --bad:#c76a5a; color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;line-height:1.6;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+h1,h2,h3{font-family:Archivo,sans-serif;margin:0;letter-spacing:-0.01em}
+a{color:var(--accent)}
+.container{max-width:1020px;margin:0 auto;padding:0 24px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.navrow{display:flex;align-items:center;justify-content:space-between;max-width:1020px;margin:0 auto;padding:16px 24px;gap:16px;flex-wrap:wrap}
+.brand{font-family:Archivo;font-weight:800;font-size:19px;cursor:pointer}
+.navlinks{display:flex;gap:20px;flex-wrap:wrap}
+.navlinks a{color:var(--ink);text-decoration:none;font-size:14px;font-weight:500;cursor:pointer}
+.navlinks a:hover{color:var(--accent)}
+.portal-btn{border:1px solid var(--ink);padding:7px 16px;border-radius:3px;font-size:13.5px;font-weight:600;text-decoration:none;color:var(--ink);white-space:nowrap;cursor:pointer}
+.portal-btn:hover{background:var(--ink);color:var(--bg)}
+.crumb{color:var(--muted);font-size:13px;margin:28px 0 -8px}
+.crumb a{color:var(--muted);cursor:pointer}
+.crumb a:hover{color:var(--accent)}
+
+/* hero banner, oneder-style full bleed */
+.hero{position:relative;padding:92px 0 72px;border-bottom:1px solid var(--line);overflow:hidden;background:var(--surface)}
+.hero-graphic{position:absolute;right:-60px;top:-40px;width:420px;height:420px;opacity:.9}
+.eyebrow{color:var(--muted);font-size:13.5px;margin:0 0 18px}
+.hero h1{font-size:clamp(32px,5.4vw,54px);line-height:1.04;max-width:14ch;position:relative}
+.hero p.lede{max-width:52ch;color:var(--muted);font-size:17px;margin:22px 0 0;position:relative}
+.hero .cta{display:inline-block;margin-top:28px;padding:13px 26px;background:var(--ink);color:var(--bg);text-decoration:none;border-radius:3px;font-weight:600;font-size:14.5px;position:relative}
+.stat-row{display:flex;gap:40px;margin-top:40px;flex-wrap:wrap;position:relative}
+.stat b{font-family:Archivo;font-size:28px;display:block}
+.stat span{color:var(--muted);font-size:13.5px}
+
+.page{padding:56px 0 72px}
+.page h2{font-size:28px;margin-bottom:8px}
+.page h3.sechead{font-size:19px;margin:44px 0 6px}
+.page p.sub{color:var(--muted);max-width:60ch;margin:0 0 32px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:720px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:4px;padding:22px}
+.card h3{font-size:17px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.card p{color:var(--muted);font-size:14.5px;margin:0}
+.icon{width:20px;height:20px;flex-shrink:0;color:var(--accent)}
+.linklist a{display:block;padding:16px 0;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink);font-weight:600;cursor:pointer}
+.linklist a:last-child{border-bottom:none}
+.linklist a span{display:block;color:var(--muted);font-weight:400;font-size:13.5px;margin-top:3px}
+.linklist a:hover{color:var(--accent)}
+.piplist{list-style:none;padding:0;margin:0;color:var(--muted);font-size:14px}
+.piplist li{padding:6px 0;border-bottom:1px solid var(--line)}
+.logostrip{display:flex;gap:28px;flex-wrap:wrap;color:var(--muted);font-family:Archivo;font-weight:700;font-size:15px;opacity:.6}
+
+/* case study / portfolio grid */
+.casecard{border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.casecard .thumb{height:140px;display:block}
+.casecard .cbody{padding:16px 18px}
+.casecard h3{font-size:15.5px;margin-bottom:4px}
+.casecard p{color:var(--muted);font-size:13.5px;margin:0}
+
+/* pricing cards */
+.pricecard{border:1px solid var(--line);border-radius:5px;padding:26px 22px;position:relative}
+.pricecard.popular{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.pricecard .badge{position:absolute;top:-11px;right:18px;background:var(--ink);color:var(--bg);font-size:11px;padding:3px 10px;border-radius:10px;font-weight:600}
+.pricecard h3{font-size:16px;margin-bottom:4px}
+.pricecard .amount{font-family:Archivo;font-size:26px;margin:10px 0}
+.pricecard .amount span{font-size:13px;color:var(--muted);font-family:Inter;font-weight:400}
+.pricecard ul{list-style:none;padding:0;margin:16px 0 0;font-size:13.5px;color:var(--muted)}
+.pricecard li{padding:6px 0;border-bottom:1px solid var(--line)}
+.pricecard li:last-child{border-bottom:none}
+
+/* testimonial carousel */
+.carousel{border:1px solid var(--line);border-radius:5px;padding:32px;max-width:640px}
+.carousel p.quote{font-size:17px;margin:0 0 14px}
+.carousel .who{color:var(--muted);font-size:13.5px}
+.carousel-nav{display:flex;gap:10px;margin-top:22px}
+.carousel-nav button{border:1px solid var(--line);background:var(--bg);color:var(--ink);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:15px}
+.carousel-nav button:hover{border-color:var(--accent);color:var(--accent)}
+.carousel-dots{color:var(--muted);font-size:12.5px;align-self:center;margin-left:6px}
+
+.flagbox{border:1px dashed var(--accent);background:var(--accent-soft);border-radius:4px;padding:12px 16px;margin:18px 0;font-size:13.5px;cursor:pointer;user-select:none}
+.flagbox .label{font-weight:600;color:var(--accent)}
+.flagbox .reveal{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin-top:8px;display:none;color:var(--ink)}
+.flagbox.open .reveal{display:block}
+
+.eventrow{display:flex;justify-content:space-between;align-items:baseline;padding:16px 0;border-bottom:1px solid var(--line);gap:16px;flex-wrap:wrap}
+.eventrow:last-child{border-bottom:none}
+.eventrow .yr{color:var(--muted);font-size:13.5px;min-width:70px}
+.eventrow .ttl{font-weight:600}
+.schedule-row{display:flex;gap:16px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.schedule-row .t{color:var(--muted);min-width:90px}
+
+.notebox{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:18px 20px;font-size:14px;color:var(--muted);margin-top:18px}
+.mono-block{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:16px 18px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;color:var(--muted);white-space:pre-wrap;margin-top:14px}
+
+.accordion{margin-top:48px;border-top:1px solid var(--line);padding-top:14px}
+.accordion summary{cursor:pointer;color:var(--muted);font-size:12.5px;list-style:none}
+.accordion summary::-webkit-details-marker{display:none}
+.accordion summary:before{content:"▸ ";}
+.accordion[open] summary:before{content:"▾ ";}
+.accordion .inner{margin-top:10px;font-size:12.5px;color:var(--muted)}
+.accordion .inner a{color:var(--muted);display:block;padding:4px 0}
+.accordion .inner a:hover{color:var(--accent)}
+
+.login-box{max-width:380px;margin:0 auto;border:1px solid var(--line);border-radius:4px;padding:32px}
+.login-box h2{font-size:22px;margin-bottom:6px}
+.login-box p{color:var(--muted);font-size:14px;margin:0 0 24px}
+.login-box label{display:block;font-size:13px;font-weight:600;margin:14px 0 6px}
+.login-box input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:3px;font:inherit;background:var(--bg);color:var(--ink)}
+.login-box button{margin-top:20px;width:100%;padding:11px;border:none;border-radius:3px;background:var(--ink);color:var(--bg);font:inherit;font-weight:600;cursor:pointer}
+.login-msg{font-size:13px;margin-top:12px;min-height:16px}
+.login-msg.bad{color:var(--bad)}
+.unlocked{display:none;max-width:560px;margin:40px auto 0}
+.unlocked.show{display:block}
+
+.jobtools{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.jobtools input, .jobtools select{padding:9px 12px;border:1px solid var(--line);border-radius:3px;font:inherit;font-size:13.5px;background:var(--bg);color:var(--ink)}
+.jobtools input{flex:1;min-width:180px}
+.jobrow{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--line);cursor:pointer;gap:12px}
+.jobrow:hover{color:var(--accent)}
+.jobrow .meta{color:var(--muted);font-size:13px;font-weight:400}
+.jobrow .status{font-size:12px;padding:3px 9px;border-radius:10px;background:var(--surface);color:var(--muted);white-space:nowrap}
+.jobrow .status.filled{background:var(--accent-soft);color:var(--accent)}
+.backlink{font-size:13.5px;color:var(--muted);cursor:pointer}
+.newsletter{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.newsletter input{flex:1;min-width:200px;padding:10px 12px;border:1px solid var(--line);border-radius:3px;font:inherit;background:var(--bg);color:var(--ink)}
+.newsletter button{padding:10px 18px;border:none;border-radius:3px;background:var(--ink);color:var(--bg);font:inherit;font-weight:600;cursor:pointer}
+
+footer{padding:48px 0 60px;border-top:1px solid var(--line);margin-top:20px}
+.footer-note{color:var(--muted);font-size:13px;margin-bottom:22px}
+.footer-links{columns:4;column-gap:20px;font-size:11.5px}
+@media(max-width:720px){.footer-links{columns:2}}
+.footer-links a{display:block;color:var(--muted);text-decoration:none;padding:3px 0;cursor:pointer;break-inside:avoid}
+.footer-links a:hover{color:var(--accent)}
+.copyright{color:var(--muted);font-size:11.5px;margin-top:26px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="navrow">
+    <div class="brand" onclick="go('home')">GRANULARITY</div>
+    <div class="navlinks" id="navlinks">
+      <a onclick="go('home')">Home</a>
+      <a onclick="go('about')">About</a>
+      <a onclick="go('services')">Services</a>
+      <a onclick="go('events')">Events</a>
+      <a onclick="go('blog')">Blog</a>
+    </div>
+    <a class="portal-btn" onclick="go('portal')">Staff Portal</a>
+  </div>
+</nav>
+
+<div class="container" id="crumb-wrap" style="display:none"><p class="crumb" id="crumb"></p></div>
+<div id="app"></div>
+
+<footer class="container">
+  <p class="footer-note">Granularity Holdings — a Granularity / LiveCorp company.</p>
+  <div class="footer-links" id="footerLinks"></div>
+  <p class="copyright">© Granularity. Internal training environment — fictional company, fictional data.</p>
+</footer>
+
+<script>
+/* ---------- flag reveal (base64 so raw source isn't a crib sheet) ---------- */
+const FLAGS = {
+  f1: "U0V7YWNlMWQxZjUyNTRmNjM3Y30=",
+  f2: "U0V7ZGUyOWUxNGU5MTU1YmM2N30=",
+  f3: "U0V7NDE5ODJiZTcyOTg1YTIzMH0=",
+  f4: "U0V7YzliM2MxZmViOWQ2OTc0NX0=",
+  f5: "U0V7ODlhZDQ0NTY5OWFjYjBlZX0=",
+  f6: "U0V7YjUwNDQ3MTVkNzk2MTA0ZX0=",
+  f9: "U0V7NWY2MGE2MjZiZmJiNjk2Yn0="
+};
+function toggleFlag(el, key){
+  const reveal = el.querySelector(".reveal");
+  if(!el.classList.contains("open")){
+    if(key === "f9"){
+      reveal.innerHTML = "Flag: " + atob(FLAGS[key]) + "<br><br>" +
+        "<em>Leftover note on this posting:</em><br>" +
+        "user: <strong>mwhitfield</strong><br>" +
+        "temp_pass: <strong>Onboard2024!</strong><br>" +
+        "\u201ccreated for the HR hire\u2019s onboarding, never rotated after the role was filled.\u201d";
+    } else {
+      reveal.textContent = "Flag: " + atob(FLAGS[key]);
+    }
+  }
+  el.classList.toggle("open");
+}
+function flagbox(key, label){
+  return '<div class="flagbox" onclick="toggleFlag(this,\''+key+'\')"><span class="label">'+label+'</span><div class="reveal"></div></div>';
+}
+
+/* ---------- inline svg "imagery" ---------- */
+const ICONS = {
+  shield: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 3v6c0 5-3.4 8.7-8 11-4.6-2.3-8-6-8-11V5l8-3z"/></svg>',
+  mask: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9c0-3 3.6-5 8-5s8 2 8 5-2 7-8 7-8-4-8-7z"/><circle cx="9" cy="10" r="1"/><circle cx="15" cy="10" r="1"/></svg>',
+  radar: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12L19 7"/></svg>',
+  lock: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>',
+  doc: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l4 4v16H6z"/><path d="M15 2v4h4"/></svg>',
+  siren: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3a6 6 0 016 6v6H6V9a6 6 0 016-6z"/><path d="M4 20h16"/></svg>'
+};
+function heroGraphic(){
+  return `<svg class="hero-graphic" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="260" cy="150" r="140" stroke="var(--line)" stroke-width="1.5"/>
+    <circle cx="260" cy="150" r="95" stroke="var(--accent)" stroke-width="1.5" opacity=".4"/>
+    <circle cx="260" cy="150" r="50" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+    <path d="M260 120 L285 150 L260 180 L235 150 Z" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
+  </svg>`;
+}
+function thumbSVG(tone){
+  const tones = {
+    a:"linear-gradient(135deg,#1c2530,#2d4a5e)", b:"linear-gradient(135deg,#2d4a5e,#5b6e7a)",
+    c:"linear-gradient(135deg,#13161a,#3a4753)", d:"linear-gradient(135deg,#374755,#8fa6b3)"
+  };
+  return `<div class="thumb" style="background:${tones[tone]}"></div>`;
+}
+
+/* ---------- testimonial carousel ---------- */
+const TESTIMONIALS = [
+  {q:"Granularity found a privilege escalation path our last three audits missed entirely. The report was the first one our engineering team actually read cover to cover.", who:"VP of Engineering, mid-market fintech client"},
+  {q:"Their social engineering assessment was humbling in the best way. We rewrote our onboarding training the following month.", who:"Director of IT, regional healthcare group"},
+  {q:"We've used three security vendors over the years. Granularity is the only one whose findings survived contact with our actual environment.", who:"CISO, logistics company"},
+  {q:"What stood out wasn't the exploit chain — it was how clearly the final report explained it to our board.", who:"COO, SaaS platform client"}
+];
+let tIdx = 0;
+function renderCarousel(){
+  const t = TESTIMONIALS[tIdx];
+  return `<div class="carousel">
+    <p class="quote">"${t.q}"</p>
+    <p class="who">— ${t.who}</p>
+    <div class="carousel-nav">
+      <button onclick="shiftT(-1)">‹</button>
+      <button onclick="shiftT(1)">›</button>
+      <span class="carousel-dots">${tIdx+1} / ${TESTIMONIALS.length}</span>
+    </div>
+  </div>`;
+}
+function shiftT(d){
+  tIdx = (tIdx + d + TESTIMONIALS.length) % TESTIMONIALS.length;
+  const holder = document.getElementById("carouselHolder");
+  if(holder) holder.innerHTML = renderCarousel();
+}
+
+/* ---------- jobs data ---------- */
+const JOBS = [
+  {id:"pentest-sr", title:"Senior Penetration Tester", dept:"Engineering", loc:"Austin, TX (Hybrid)", type:"Full-time", status:"open",
+   desc:"Lead network and application engagements end to end, from scoping calls through final readout. You'll mentor junior testers and occasionally get pulled into red-team work when the calendar lines up."},
+  {id:"redteam-op", title:"Red Team Operator", dept:"Engineering", loc:"Remote", type:"Full-time", status:"open",
+   desc:"Plan and execute multi-week adversary simulations against mature client environments. Strong OPSEC discipline and comfort with ambiguous scoping required."},
+  {id:"sales-eng", title:"Security Sales Engineer", dept:"Sales", loc:"Austin, TX", type:"Full-time", status:"open",
+   desc:"Translate technical findings into business risk for prospective clients during the sales cycle. You'll sit in on scoping calls alongside the delivery team."},
+  {id:"csm", title:"Client Success Manager", dept:"Operations", loc:"Remote", type:"Full-time", status:"open",
+   desc:"Own the relationship for a book of recurring clients, coordinating engagement scheduling and report delivery timelines."},
+  {id:"soc-analyst", title:"SOC Analyst (LiveCorp)", dept:"Operations", loc:"Austin, TX", type:"Full-time", status:"open",
+   desc:"Join LiveCorp's 24/7 monitoring desk. Rotating shift schedule, strong triage instincts expected."},
+  {id:"tech-writer", title:"Technical Writer, Security Reports", dept:"Engineering", loc:"Remote", type:"Contract", status:"open",
+   desc:"Turn raw testing notes into client-ready findings. Prior exposure to pentest or compliance reporting strongly preferred."},
+  {id:"office-coord", title:"Office Coordinator", dept:"Operations", loc:"Austin, TX", type:"Part-time", status:"open",
+   desc:"Keep the Austin office running — vendor coordination, supply ordering, and general day-to-day logistics."},
+  {id:"hr-gen", title:"HR Generalist", dept:"People", loc:"Austin, TX", type:"Full-time", status:"filled",
+   desc:"Own onboarding, benefits administration, and day-to-day employee relations for a fast-growing team. This role has since been filled; leaving the listing up for reference."},
+  {id:"mktg-assoc", title:"Marketing Associate", dept:"Marketing", loc:"Remote", type:"Full-time", status:"open",
+   desc:"Support content production across the blog, event presence, and case studies. Security background a plus but not required."},
+  {id:"compliance", title:"Compliance Analyst", dept:"Operations", loc:"Remote", type:"Full-time", status:"open",
+   desc:"Support SOC 2 and ISO 27001 advisory engagements, building out evidence trackers and gap-assessment documentation."},
+  {id:"role-01", title:"Penetration Tester I", dept:"Engineering", loc:"Austin, TX", type:"Full-time", status:"open",
+   desc:"Supports delivery and tooling work across active engagements, reporting into the engineering pod structure."},
+  {id:"role-02", title:"Penetration Tester II", dept:"Engineering", loc:"Remote", type:"Full-time", status:"open",
+   desc:"Supports delivery and tooling work across active engagements, reporting into the engineering pod structure."},
+  {id:"role-03", title:"Associate Red Team Operator", dept:"Engineering", loc:"Austin, TX (Hybrid)", type:"Full-time", status:"open",
+   desc:"Supports delivery and tooling work across active engagements, reporting into the engineering pod structure."},
+  {id:"role-04", title:"Cloud Security Engineer", dept:"Engineering", loc:"Denver, CO (Remote hub)", type:"Part-time", status:"open",
+   desc:"Supports delivery and tooling work across active engagements, reporting into the engineering pod structure."},
+  {id:"role-05", title:"Application Security Engineer", dept:"Engineering", loc:"Remote", type:"Contract", status:"open",
+   desc:"Supports delivery and tooling work across active engagements, reporting into the engineering pod structure."},
+  {id:"role-06", title:"Mobile Security Tester", dept:"Engineering", loc:"Austin, TX", type:"Full-time", status:"open",
+   desc:"Supports delivery and tooling work across active engagements, reporting into the engineering pod structure."},
+  {id:"role-07", title:"Hardware Security Researcher", dept:"Engineering", loc:"Remote", type:"Full-time", status:"open",
+   desc:"Supports delivery and tooling work across active engagements, reporting into the engineering pod structure."},
+  {id:"role-08", title:"DevSecOps Engineer", dept:"Engineering", loc:"Austin, TX (Hybrid)", type:"Full-time", status:"open",
+   desc:"Supports delivery and tooling work across active engagements, reporting into the engineering pod structure."},
+  {id:"role-09", title:"QA Engineer, Tooling", dept:"Engineering", loc:"Denver, CO (Remote hub)", type:"Part-time", status:"open",
+   desc:"Supports delivery and tooling work across active engagements, reporting into the engineering pod structure."},
+  {id:"role-10", title:"Security Tooling Developer", dept:"Engineering", loc:"Remote", type:"Contract", status:"open",
+   desc:"Supports delivery and tooling work across active engagements, reporting into the engineering pod structure."},
+  {id:"role-11", title:"Research Engineer", dept:"Engineering", loc:"Austin, TX", type:"Full-time", status:"open",
+   desc:"Supports delivery and tooling work across active engagements, reporting into the engineering pod structure."},
+  {id:"role-12", title:"Staff Security Engineer", dept:"Engineering", loc:"Remote", type:"Full-time", status:"open",
+   desc:"Supports delivery and tooling work across active engagements, reporting into the engineering pod structure."},
+  {id:"role-13", title:"Account Executive", dept:"Sales", loc:"Austin, TX", type:"Full-time", status:"open",
+   desc:"Works alongside the delivery team during scoping and renewal cycles to keep the pipeline moving."},
+  {id:"role-14", title:"Regional Sales Manager", dept:"Sales", loc:"Remote", type:"Full-time", status:"open",
+   desc:"Works alongside the delivery team during scoping and renewal cycles to keep the pipeline moving."},
+  {id:"role-15", title:"Sales Development Rep", dept:"Sales", loc:"Austin, TX (Hybrid)", type:"Full-time", status:"open",
+   desc:"Works alongside the delivery team during scoping and renewal cycles to keep the pipeline moving."},
+  {id:"role-16", title:"Channel Partnerships Manager", dept:"Sales", loc:"Denver, CO (Remote hub)", type:"Part-time", status:"open",
+   desc:"Works alongside the delivery team during scoping and renewal cycles to keep the pipeline moving."},
+  {id:"role-17", title:"Enterprise Account Manager", dept:"Sales", loc:"Remote", type:"Contract", status:"open",
+   desc:"Works alongside the delivery team during scoping and renewal cycles to keep the pipeline moving."},
+  {id:"role-18", title:"Renewals Specialist", dept:"Sales", loc:"Austin, TX", type:"Full-time", status:"open",
+   desc:"Works alongside the delivery team during scoping and renewal cycles to keep the pipeline moving."},
+  {id:"role-19", title:"Proposal Writer", dept:"Sales", loc:"Remote", type:"Full-time", status:"open",
+   desc:"Works alongside the delivery team during scoping and renewal cycles to keep the pipeline moving."},
+  {id:"role-20", title:"Sales Operations Analyst", dept:"Sales", loc:"Austin, TX (Hybrid)", type:"Full-time", status:"open",
+   desc:"Works alongside the delivery team during scoping and renewal cycles to keep the pipeline moving."},
+  {id:"role-21", title:"SOC Analyst II", dept:"Operations", loc:"Austin, TX", type:"Full-time", status:"open",
+   desc:"Keeps day-to-day logistics, scheduling, and client-facing operations running smoothly."},
+  {id:"role-22", title:"SOC Shift Lead", dept:"Operations", loc:"Remote", type:"Full-time", status:"open",
+   desc:"Keeps day-to-day logistics, scheduling, and client-facing operations running smoothly."},
+  {id:"role-23", title:"Client Onboarding Specialist", dept:"Operations", loc:"Austin, TX (Hybrid)", type:"Full-time", status:"open",
+   desc:"Keeps day-to-day logistics, scheduling, and client-facing operations running smoothly."},
+  {id:"role-24", title:"Scheduling Coordinator", dept:"Operations", loc:"Denver, CO (Remote hub)", type:"Part-time", status:"open",
+   desc:"Keeps day-to-day logistics, scheduling, and client-facing operations running smoothly."},
+  {id:"role-25", title:"Vendor Management Specialist", dept:"Operations", loc:"Remote", type:"Contract", status:"open",
+   desc:"Keeps day-to-day logistics, scheduling, and client-facing operations running smoothly."},
+  {id:"role-26", title:"IT Support Technician", dept:"Operations", loc:"Austin, TX", type:"Full-time", status:"open",
+   desc:"Keeps day-to-day logistics, scheduling, and client-facing operations running smoothly."},
+  {id:"role-27", title:"Facilities Assistant", dept:"Operations", loc:"Remote", type:"Full-time", status:"open",
+   desc:"Keeps day-to-day logistics, scheduling, and client-facing operations running smoothly."},
+  {id:"role-28", title:"Business Operations Analyst", dept:"Operations", loc:"Austin, TX (Hybrid)", type:"Full-time", status:"open",
+   desc:"Keeps day-to-day logistics, scheduling, and client-facing operations running smoothly."},
+  {id:"role-29", title:"Procurement Coordinator", dept:"Operations", loc:"Denver, CO (Remote hub)", type:"Part-time", status:"open",
+   desc:"Keeps day-to-day logistics, scheduling, and client-facing operations running smoothly."},
+  {id:"role-30", title:"Data Entry Specialist", dept:"Operations", loc:"Remote", type:"Contract", status:"open",
+   desc:"Keeps day-to-day logistics, scheduling, and client-facing operations running smoothly."},
+  {id:"role-31", title:"Executive Assistant", dept:"Operations", loc:"Austin, TX", type:"Full-time", status:"open",
+   desc:"Keeps day-to-day logistics, scheduling, and client-facing operations running smoothly."},
+  {id:"role-32", title:"Office Manager, Remote Hub", dept:"Operations", loc:"Remote", type:"Full-time", status:"open",
+   desc:"Keeps day-to-day logistics, scheduling, and client-facing operations running smoothly."},
+  {id:"role-33", title:"Recruiter", dept:"People", loc:"Austin, TX", type:"Full-time", status:"open",
+   desc:"Supports hiring, onboarding, and day-to-day people operations as the team continues to grow."},
+  {id:"role-34", title:"Talent Sourcer", dept:"People", loc:"Remote", type:"Full-time", status:"open",
+   desc:"Supports hiring, onboarding, and day-to-day people operations as the team continues to grow."},
+  {id:"role-35", title:"People Ops Coordinator", dept:"People", loc:"Austin, TX (Hybrid)", type:"Full-time", status:"open",
+   desc:"Supports hiring, onboarding, and day-to-day people operations as the team continues to grow."},
+  {id:"role-36", title:"Benefits Administrator", dept:"People", loc:"Denver, CO (Remote hub)", type:"Part-time", status:"open",
+   desc:"Supports hiring, onboarding, and day-to-day people operations as the team continues to grow."},
+  {id:"role-37", title:"Learning & Development Specialist", dept:"People", loc:"Remote", type:"Contract", status:"open",
+   desc:"Supports hiring, onboarding, and day-to-day people operations as the team continues to grow."},
+  {id:"role-38", title:"HR Coordinator", dept:"People", loc:"Austin, TX", type:"Full-time", status:"open",
+   desc:"Supports hiring, onboarding, and day-to-day people operations as the team continues to grow."},
+  {id:"role-39", title:"Content Strategist", dept:"Marketing", loc:"Austin, TX", type:"Full-time", status:"open",
+   desc:"Supports content, events, and brand presence across the Granularity and LiveCorp teams."},
+  {id:"role-40", title:"Social Media Coordinator", dept:"Marketing", loc:"Remote", type:"Full-time", status:"open",
+   desc:"Supports content, events, and brand presence across the Granularity and LiveCorp teams."},
+  {id:"role-41", title:"Event Marketing Specialist", dept:"Marketing", loc:"Austin, TX (Hybrid)", type:"Full-time", status:"open",
+   desc:"Supports content, events, and brand presence across the Granularity and LiveCorp teams."},
+  {id:"role-42", title:"SEO Specialist", dept:"Marketing", loc:"Denver, CO (Remote hub)", type:"Part-time", status:"open",
+   desc:"Supports content, events, and brand presence across the Granularity and LiveCorp teams."},
+  {id:"role-43", title:"Graphic Designer", dept:"Marketing", loc:"Remote", type:"Contract", status:"open",
+   desc:"Supports content, events, and brand presence across the Granularity and LiveCorp teams."},
+  {id:"role-44", title:"Marketing Operations Analyst", dept:"Marketing", loc:"Austin, TX", type:"Full-time", status:"open",
+   desc:"Supports content, events, and brand presence across the Granularity and LiveCorp teams."},
+  {id:"role-45", title:"Brand Copywriter", dept:"Marketing", loc:"Remote", type:"Full-time", status:"open",
+   desc:"Supports content, events, and brand presence across the Granularity and LiveCorp teams."},
+  {id:"role-46", title:"Demand Generation Manager", dept:"Marketing", loc:"Austin, TX (Hybrid)", type:"Full-time", status:"open",
+   desc:"Supports content, events, and brand presence across the Granularity and LiveCorp teams."},
+  {id:"role-47", title:"Video Producer", dept:"Marketing", loc:"Denver, CO (Remote hub)", type:"Part-time", status:"open",
+   desc:"Supports content, events, and brand presence across the Granularity and LiveCorp teams."},
+  {id:"role-48", title:"Community Manager", dept:"Marketing", loc:"Remote", type:"Contract", status:"open",
+   desc:"Supports content, events, and brand presence across the Granularity and LiveCorp teams."},
+  {id:"role-49", title:"Partnerships Marketing Manager", dept:"Marketing", loc:"Austin, TX", type:"Full-time", status:"open",
+   desc:"Supports content, events, and brand presence across the Granularity and LiveCorp teams."},
+  {id:"role-50", title:"Marketing Intern", dept:"Marketing", loc:"Remote", type:"Full-time", status:"open",
+   desc:"Supports content, events, and brand presence across the Granularity and LiveCorp teams."},
+];
+
+/* ---------- footer link maze (offices and careers spread far apart on purpose) ---------- */
+const FOOTER_LINKS = [
+  {label:"Privacy Policy", hash:"privacy-policy"},
+  {label:"Office Locations", hash:"offices"},
+  {label:"Terms of Service", hash:"terms"},
+  {label:"Cookie Preferences", hash:"cookies"},
+  {label:"Trust Center", hash:"trust-center"},
+  {label:"Brand Guidelines", hash:"brand"},
+  {label:"security.txt", hash:"security-txt"},
+  {label:"Investor Relations", hash:"investors"},
+  {label:"Alliance Network", hash:"ecosystem-partners"},
+  {label:"Vendor Portal", hash:"vendor-portal"},
+  {label:"Accessibility Statement", hash:"accessibility"},
+  {label:"Partner Login", hash:"partner-login"},
+  {label:"Leadership", hash:"leadership"},
+  {label:"Alumni Network", hash:"alumni"},
+  {label:"Vendor & Delivery Info", hash:"ecosystem-supplychain"},
+  {label:"Media Kit", hash:"media-kit"},
+  {label:"Newsletter Archive", hash:"newsletter"},
+  {label:"Press", hash:"press"},
+  {label:"Community Forum", hash:"forum"},
+  {label:"Status Page", hash:"status"},
+  {label:"API Documentation", hash:"api-docs"},
+  {label:"Whistleblower Policy", hash:"whistleblower"},
+  {label:"Careers", hash:"careers"},
+  {label:"Export Compliance Notice", hash:"export-compliance"},
+  {label:"Site Map", hash:"sitemap"}
+];
+const REAL_FOOTER_HASHES = new Set(["offices","careers","leadership","press","ecosystem-partners","ecosystem-supplychain"]);
+document.getElementById("footerLinks").innerHTML = FOOTER_LINKS
+  .map(l => '<a onclick="go(\''+l.hash+'\')">'+l.label+'</a>').join("");
+
+/* ---------- decoy pages, varied length and content ---------- */
+const DECOY_CONTENT = {
+  "privacy-policy": {title:"Privacy Policy", html:`
+    <p>This policy describes how Granularity collects, uses, and retains information in connection with our website and client engagements. It applies to visitors, prospective clients, and job applicants alike.</p>
+    <p>We collect information you provide directly — through contact forms, engagement scoping documents, and job applications — as well as standard web analytics (page views, referral source, approximate location derived from IP). We do not sell personal information to third parties under any circumstance.</p>
+    <p>Data collected during a security engagement is governed separately by the engagement's own rules-of-engagement document and retained only as long as the contract requires, after which it is purged per our data destruction schedule.</p>
+    <p>Questions about this policy can be directed to our general contact channel. We review and update this policy annually, or sooner if required by a change in applicable law.</p>`},
+  "terms": {title:"Terms of Service", html:`
+    <p>By accessing this site, you agree to use it only for lawful purposes and in a manner that does not infringe the rights of, or restrict or inhibit the use of, this site by any third party.</p>
+    <p>Content on this site — including methodology descriptions, blog posts, and case study summaries — is provided for informational purposes and does not constitute a binding service commitment. Actual engagement terms are governed exclusively by a signed statement of work.</p>
+    <p>Granularity reserves the right to update these terms at any time without prior notice. Continued use of the site after changes constitutes acceptance of the revised terms.</p>`},
+  "cookies": {title:"Cookie Preferences", html:`
+    <p>This site uses a small number of functional and analytics cookies. Functional cookies remember basic preferences; analytics cookies help us understand aggregate traffic patterns.</p>
+    <p>We do not use third-party advertising cookies. You can clear cookies at any time through your browser settings without affecting your ability to use the site.</p>
+    <p>Session cookies used for the Staff Portal are strictly functional and expire automatically after a period of inactivity — they are not used for tracking purposes.</p>`},
+  "accessibility": {title:"Accessibility Statement", html:`
+    <p>Granularity is committed to ensuring this site is accessible to the widest possible audience, regardless of ability. We aim to conform to WCAG 2.1 Level AA guidelines.</p>
+    <p>If you encounter an accessibility barrier anywhere on this site, we want to hear about it — reach out through our general contact channel and we'll prioritize a fix.</p>
+    <p>We review the site informally each quarter, and more thoroughly ahead of any major redesign. The current site hasn't had a full third-party audit yet, which is on the roadmap.</p>`},
+  "trust-center": {title:"Trust Center", html:`
+    <p>An overview of how we handle security and compliance for our own operations, separate from the engagements we deliver for clients.</p>
+    <h3 class="sechead">Current certifications</h3>
+    <ul class="piplist"><li>SOC 2 Type II — renewed annually</li><li>ISO 27001 — certified 2023</li><li>Internal penetration testing — performed quarterly by a rotating external partner, to avoid grading our own homework</li></ul>
+    <p>Full audit reports are available to prospective clients under NDA during the sales process.</p>`},
+  "security-txt": {title:"security.txt", html:`
+    <p>Per RFC 9116, our disclosure contact information:</p>
+    <div class="mono-block">Contact: mailto:security@granularity.example
+Expires: 2027-01-01T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://thecorperation.org/.well-known/security.txt
+Policy: see Whistleblower Policy for related internal reporting</div>`},
+  "brand": {title:"Brand Guidelines", html:`
+    <p>Logo usage, color palette, and typography specifications for partners and press referencing Granularity. Full asset package available on request through Media Kit.</p>
+    <p>Short version: don't stretch or recolor the logo, keep clear space around it roughly equal to the logo's own height, and don't pair it with a tagline that isn't ours. The full guideline doc covers co-branding rules for alliance partners specifically.</p>`},
+  "investors": {title:"Investor Relations", html:`
+    <p>Granularity is privately held and not currently seeking outside investment. This page exists primarily to answer the question before it's asked — if that changes, it'll be reflected here first.</p>
+    <p>We get this question often enough from prospective clients doing vendor due diligence that it felt worth a dedicated page rather than a line buried in the FAQ.</p>`},
+  "vendor-portal": {title:"Vendor Portal", html:`
+    <p>A dedicated intake point for prospective tooling and service vendors. Submissions are reviewed quarterly by the operations team, not on a rolling basis, so please allow time for a response.</p>
+    <p>We're generally not looking for new sponsorship vendors for events — those relationships are handled directly by the team that runs our conference presence.</p>
+    <p>If you're a tooling vendor specifically, note that we evaluate new tools against our existing stack before even considering a pilot — see Vendor &amp; Delivery Info for how that stack is currently structured.</p>`},
+  "partner-login": {title:"Partner Login", html:`
+    <p>Access for alliance partners managing joint engagements. This is a separate system from the Staff Portal and from LiveCorp's client-facing tools.</p>
+    <div class="notebox">Partner credentials are issued individually during onboarding — there's no self-service signup here.</div>
+    <p style="margin-top:14px;color:var(--muted);font-size:14px">Lost access or need a new teammate added to an existing partnership? Routed through your usual Granularity point of contact rather than a self-service reset flow.</p>`},
+  "alumni": {title:"Alumni Network", html:`
+    <p>A loose, informal network for former team members — mostly a mailing list at this point rather than anything formal. A handful of alumni have gone on to found their own boutique firms, a few of which are now in our Alliance Network.</p>
+    <p>We host a casual alumni meetup around Summit time most years, since a good number of former team members end up attending anyway.</p>`},
+  "media-kit": {title:"Media Kit", html:`
+    <p>Logo files, executive headshots, and boilerplate company description for press use.</p>
+    <ul class="piplist"><li>granularity-logo-pack.zip</li><li>exec-headshots-2026.zip</li><li>company-boilerplate.txt</li><li>summit-2026-event-photos.zip</li></ul>
+    <p style="color:var(--muted);font-size:13.5px;margin-top:12px">For anything not listed here, press inquiries can request specific assets directly.</p>`},
+  "newsletter": {title:"Newsletter Archive", html:`
+    <p>Past issues of our roughly-quarterly newsletter.</p>
+    <div class="eventrow"><span class="ttl">Q3 Notes: Scoping, Summit Recap, and a Hiring Update</span></div>
+    <div class="eventrow"><span class="ttl">Q1 Notes: New Compliance Offering, Team Growth</span></div>
+    <div class="eventrow"><span class="ttl">Year in Review</span></div>`},
+  "forum": {title:"Community Forum", html:`
+    <p>Our community forum was retired last year in favor of more direct channels. Most of that activity has moved to conference hallway conversations and the alliance partner mailing list instead.</p>
+    <p>The old archive is still around internally in read-only form, mostly for reference — nothing active is happening here anymore.</p>`},
+  "status": {title:"Status Page", html:`
+    <p>Current status of client-facing systems, including LiveCorp's monitoring dashboard and the client reporting portal.</p>
+    <div class="eventrow"><span class="ttl">LiveCorp Monitoring Dashboard</span><span class="yr" style="color:var(--good)">Operational</span></div>
+    <div class="eventrow"><span class="ttl">Client Reporting Portal</span><span class="yr" style="color:var(--good)">Operational</span></div>
+    <div class="eventrow"><span class="ttl">Staff Portal</span><span class="yr" style="color:var(--good)">Operational</span></div>
+    <div class="eventrow"><span class="ttl">Public Website</span><span class="yr" style="color:var(--good)">Operational</span></div>
+    <p style="color:var(--muted);font-size:13px;margin-top:14px">Uptime history available on request. Last incident: a brief reporting-portal outage during a provider maintenance window, several months back, resolved within the hour.</p>`},
+  "api-docs": {title:"API Documentation", html:`
+    <p>Documentation for the LiveCorp reporting API, used by a handful of clients who pull findings directly into their own ticketing systems.</p>
+    <div class="mono-block">GET  /v1/engagements
+GET  /v1/engagements/{id}/findings
+GET  /v1/engagements/{id}/report.pdf</div>
+    <p>API keys are issued per client during onboarding and are not self-service. Rate limits are generous for normal polling use and we've never had to enforce them against a well-behaved integration.</p>`},
+  "whistleblower": {title:"Whistleblower Policy", html:`
+    <p>Granularity maintains a confidential channel for reporting suspected misconduct, safety concerns, or ethics violations — internally or related to a client engagement.</p>
+    <p>Reports can be made anonymously. Retaliation against anyone making a good-faith report is a terminable offense under this policy, regardless of position or tenure.</p>
+    <p>This policy extends to concerns raised about a client's environment during an engagement, not just internal matters — if something looks seriously wrong during testing, there's a defined path for flagging it beyond the standard findings report.</p>`},
+  "export-compliance": {title:"Export Compliance Notice", html:`
+    <p>Some of the tooling and methodology we use is subject to export control regulations. Engagements involving entities outside standard jurisdictions go through an additional compliance review before scoping is finalized.</p>
+    <p>This review is handled by operations in coordination with legal counsel and typically adds a few days to scoping for affected engagements — worth factoring into timeline expectations if this might apply to you.</p>`},
+  "sitemap": {title:"Site Map", html:`
+    <p>A flat listing of primary site sections: Home, About, Services, Events, Blog, Careers, Offices. Most other footer entries point to supporting or legal pages rather than primary navigation.</p>
+    <p>If you're looking for something specific and can't find it here, the search box on Careers is the only in-site search we currently offer — everything else is click-through navigation.</p>`}
+};
+function decoyHTML(hash){
+  const d = DECOY_CONTENT[hash];
+  return `<div class="page container"><h2>${d.title}</h2>${d.html}</div>`;
+}
+
+/* ---------- pages ---------- */
+const PAGES = {
+  home: { title:"Home", crumb:null, html: `
+    <header class="hero"><div class="container">
+      ${heroGraphic()}
+      <p class="eyebrow">Cybersecurity &amp; Offensive Readiness, as a Service</p>
+      <h1>We find the gaps before someone else does.</h1>
+      <p class="lede">Granularity is an IT-as-a-Service security practice: penetration testing, adversary simulation, and managed detection for organizations who'd rather hear it from us than from a breach notice.</p>
+      <a class="cta" onclick="go('services')">Explore our services</a>
+      <div class="stat-row">
+        <div class="stat"><b>140+</b><span>engagements delivered</span></div>
+        <div class="stat"><b>6</b><span>years in operation</span></div>
+        <div class="stat"><b>97%</b><span>client retention</span></div>
+        <div class="stat"><b>2</b><span>operating subsidiaries</span></div>
+      </div>
+    </div></header>
+    <div class="page container">
+      <p class="sub">Trusted by security-conscious teams across fintech, healthcare, logistics, and SaaS.</p>
+      <div class="logostrip"><span>NORTHBRIDGE</span><span>VELARA LOGISTICS</span><span>HARTLINE HEALTH</span><span>FORGEPOINT</span><span>CASCADE SYSTEMS</span></div>
+
+      <h3 class="sechead">What we do</h3>
+      <div class="grid3">
+        <div class="card"><h3>${ICONS.radar} Offensive Testing</h3><p>Penetration testing and red-team engagements scoped to real business risk.</p></div>
+        <div class="card"><h3>${ICONS.shield} Managed Detection</h3><p>Delivered through LiveCorp, our 24/7 monitoring subsidiary.</p></div>
+        <div class="card"><h3>${ICONS.doc} Advisory</h3><p>Compliance gap assessments and remediation planning.</p></div>
+      </div>
+
+      <h3 class="sechead">Recent engagement write-ups</h3>
+      <p class="sub">Anonymized summaries from a few recent engagements — sanitized for client confidentiality.</p>
+      <div class="grid3">
+        <div class="casecard">${thumbSVG('a')}<div class="cbody"><h3>Fintech lending platform</h3><p>A multi-phase engagement surfacing an auth bypass in a third-party integration.</p></div></div>
+        <div class="casecard">${thumbSVG('b')}<div class="cbody"><h3>Regional healthcare group</h3><p>Social engineering assessment that reshaped onboarding training company-wide.</p></div></div>
+        <div class="casecard">${thumbSVG('c')}<div class="cbody"><h3>Logistics SaaS provider</h3><p>Continuous-tier engagement spanning four quarters of iterative hardening.</p></div></div>
+      </div>
+
+      <h3 class="sechead">Industries we serve</h3>
+      <ul class="piplist">
+        <li>Financial services &amp; fintech — card data environments, trading platforms, lending infrastructure</li>
+        <li>Healthcare — HIPAA-adjacent environments, medical device networks, patient portals</li>
+        <li>Logistics &amp; supply chain — warehouse automation, fleet telematics, vendor integrations</li>
+        <li>SaaS &amp; platform companies — multi-tenant architecture, API surface, customer data isolation</li>
+      </ul>
+
+      <h3 class="sechead">Our methodology, briefly</h3>
+      <div class="grid4">
+        <div class="card"><h3>Scope</h3><p>Define targets, rules of engagement, and success criteria together.</p></div>
+        <div class="card"><h3>Recon</h3><p>Open-source and authenticated discovery against the agreed scope.</p></div>
+        <div class="card"><h3>Exploit</h3><p>Controlled exploitation aligned to the client's risk tolerance.</p></div>
+        <div class="card"><h3>Report</h3><p>Findings leadership can actually act on, not a CVE dump.</p></div>
+      </div>
+
+      <h3 class="sechead">Recognition</h3>
+      <ul class="piplist">
+        <li>"Boutique Firms to Watch" — Security Trade Quarterly, 2023</li>
+        <li>Finalist, Regional Cybersecurity Excellence Awards, 2024</li>
+        <li>Featured speaker, three consecutive years running at industry conferences</li>
+      </ul>
+
+      <h3 class="sechead">What clients say</h3>
+      <div id="carouselHolder">${renderCarousel()}</div>
+
+      <h3 class="sechead">From the blog</h3>
+      <p class="sub">Notes from the team — technical write-ups, methodology thoughts, and the occasional opinion piece. <a onclick="go('blog')">Visit the blog →</a></p>
+
+      <h3 class="sechead">How engagements typically start</h3>
+      <div class="grid4">
+        <div class="card"><h3>Intro call</h3><p>30 minutes, no commitment, mostly us listening.</p></div>
+        <div class="card"><h3>Proposal</h3><p>A scoped proposal back within a week.</p></div>
+        <div class="card"><h3>Kickoff</h3><p>Asset list signed off before testing starts.</p></div>
+        <div class="card"><h3>Delivery</h3><p>Testing, then a live readout, not just a PDF.</p></div>
+      </div>
+      <h3 class="sechead">A note from the team</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">We'd rather turn down a badly scoped engagement than deliver a report nobody acts on. That's cost us a handful of deals over the years where a client wanted a rubber-stamp test for a compliance checkbox — we're fine with that trade-off.</p>
+      <h3 class="sechead">Stay in the loop</h3>
+      <p class="sub">Our newsletter goes out roughly quarterly with engagement retrospectives and methodology notes.</p>
+      <div class="newsletter"><input type="email" placeholder="you@company.com" disabled><button disabled>Subscribe</button></div>
+    </div>`
+  },
+  about: { title:"About", crumb:"About", html: `
+    <div class="page container">
+      <h2>About Granularity</h2>
+      <p class="sub">Founded in 2019, Granularity began as a two-person red-team consultancy and has grown into a holding structure covering offensive testing, managed live operations, and advisory work. We operate two primary subsidiaries — LiveCorp, our managed detection and client-operations arm, and our offensive security practice — alongside the parent consulting brand you're reading now.</p>
+      <div class="grid2">
+        <div class="card"><h3>What we believe</h3><p>Security postures decay quietly. A test that only happens once a year is already out of date by month three. We built Granularity around continuous assurance rather than point-in-time checkboxes.</p></div>
+        <div class="card"><h3>How we work</h3><p>Every engagement starts with scoping, moves through phases aligned to the client's risk tolerance, and ends with a report leadership can actually act on.</p></div>
+      </div>
+      <h3 class="sechead">Where we've been</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">The first two years were almost entirely referral-driven — our second-ever client is still a client today. LiveCorp was spun up in year three once it became clear a meaningful chunk of our clients wanted continuous monitoring, not just point-in-time testing, and running that as its own operational unit made more sense than bolting it onto the consulting side.</p>
+      <h3 class="sechead">A note on structure</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">We're intentionally organized as a small holding company rather than one flat org — it lets LiveCorp run its own 24/7 operational rhythm without that schedule bleeding into the advisory side. Partners occasionally ask about our certification program as well, which we maintain separately from the main site for now.</p>
+      <div class="notebox">Granularity's reporting lines and internal organization chart are available to verified staff. A partial structure is visible to partners under NDA — full detail lives in internal systems only.</div>
+      <h3 class="sechead">Milestones</h3>
+      <div class="eventrow"><span class="ttl">Founded as a two-person consultancy</span><span class="yr">2019</span></div>
+      <div class="eventrow"><span class="ttl">First enterprise client, fintech sector</span><span class="yr">2020</span></div>
+      <div class="eventrow"><span class="ttl">LiveCorp spun up as a dedicated monitoring arm</span><span class="yr">2021</span></div>
+      <div class="eventrow"><span class="ttl">SOC 2 Type II certification achieved</span><span class="yr">2022</span></div>
+      <div class="eventrow"><span class="ttl">ISO 27001 certification achieved</span><span class="yr">2023</span></div>
+      <div class="eventrow"><span class="ttl">Team crossed 40 people across both entities</span><span class="yr">2025</span></div>
+      <h3 class="sechead">Culture notes</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">We stayed remote-friendly even after opening the Austin office, mostly because testing work doesn't actually require anyone to be in a specific building. The office exists more for client meetings, team onboarding weeks, and the occasional all-hands than for day-to-day work.</p>
+    </div>`
+  },
+  services: { title:"Services", crumb:"Services", html: `
+    <div class="page container">
+      <h2>Services</h2>
+      <p class="sub">A full lifecycle of offensive and advisory work, scoped to the client's maturity level.</p>
+      <div class="grid3">
+        <div class="card"><h3>${ICONS.mask} Penetration Testing</h3><p>Network, application, and physical engagements scoped against real business risk.</p></div>
+        <div class="card"><h3>${ICONS.radar} Adversary Simulation</h3><p>Red-team exercises modeling a specific, realistic threat actor relevant to the client's sector.</p></div>
+        <div class="card"><h3>${ICONS.mask} Social Engineering</h3><p>Phishing, vishing, and physical pretext assessments testing people and process.</p></div>
+        <div class="card"><h3>${ICONS.shield} Managed Detection</h3><p>Delivered through LiveCorp, our 24/7 monitoring subsidiary.</p></div>
+        <div class="card"><h3>${ICONS.doc} Compliance Advisory</h3><p>Gap assessments against SOC 2, ISO 27001, and sector frameworks.</p></div>
+        <div class="card"><h3>${ICONS.siren} Incident Response</h3><p>On-call response and post-incident forensics.</p></div>
+      </div>
+
+      <h3 class="sechead">Engagement tiers</h3>
+      <p class="sub">Indicative pricing — final scope and cost are always set together during a scoping call.</p>
+      <div class="grid3">
+        <div class="pricecard"><h3>Starter</h3><p style="color:var(--muted);font-size:13.5px">Single-app or single-network scope</p><div class="amount">$8,500<span> /engagement</span></div>
+          <ul><li>1–2 week window</li><li>Single dedicated tester</li><li>Standard findings report</li></ul></div>
+        <div class="pricecard popular"><span class="badge">Most common</span><h3>Standard</h3><p style="color:var(--muted);font-size:13.5px">Multi-asset scope with a project lead</p><div class="amount">$24,000<span> /engagement</span></div>
+          <ul><li>3–4 week window</li><li>Dedicated project lead</li><li>Attack-path reporting</li><li>Remediation support call</li></ul></div>
+        <div class="pricecard"><h3>Continuous</h3><p style="color:var(--muted);font-size:13.5px">Rolling quarterly testing + monitoring</p><div class="amount">$6,500<span> /month</span></div>
+          <ul><li>Quarterly testing cycles</li><li>LiveCorp monitoring included</li><li>Priority incident response</li></ul></div>
+      </div>
+
+      <h3 class="sechead">Frameworks &amp; standards we test against</h3>
+      <ul class="piplist">
+        <li>OWASP Top 10 and OWASP ASVS for application engagements</li>
+        <li>MITRE ATT&amp;CK framework for adversary simulation scoping</li>
+        <li>PTES (Penetration Testing Execution Standard) as a baseline methodology</li>
+        <li>NIST 800-53 and CIS Controls for infrastructure-focused reviews</li>
+      </ul>
+
+      <h3 class="sechead">Common questions</h3>
+      <div class="card" style="margin-bottom:14px"><h3>How long until we get a report?</h3><p>Standard turnaround is one to two weeks after testing concludes, depending on engagement size and finding complexity.</p></div>
+      <div class="card" style="margin-bottom:14px"><h3>Do you retest after remediation?</h3><p>Yes — most engagement tiers include one retest pass to confirm findings were actually closed, not just marked resolved.</p></div>
+      <div class="card"><h3>Can we bring our own tooling into scope discussions?</h3><p>Absolutely — we'll scope around your existing stack rather than assuming a clean-slate environment.</p></div>
+    </div>`
+  },
+  leadership: { title:"Leadership", crumb:"Leadership", html: `
+    <div class="page container">
+      <h2>Leadership &amp; Testimonials</h2>
+      <p class="sub">What clients say after an engagement wraps.</p>
+      <div id="carouselHolder">${renderCarousel()}</div>
+      <h3 class="sechead">How the team is organized</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">Delivery is organized into small pods rather than one large bench — each pod carries two to three testers and rotates engagement types every few months to keep skills broad rather than narrowly specialized.</p>
+      <h3 class="sechead">Advisory board</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">A small group of former clients and industry contacts advise informally on strategy a few times a year — not a formal governance body, more a standing sounding board the leadership team checks in with ahead of major decisions like the LiveCorp spinout.</p>
+      <h3 class="sechead">A note on growth</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">We've deliberately grown slower than demand would allow. Every engagement is still staffed by someone who's been through our internal methodology training in full, and we're not willing to loosen that just to take on more volume.</p>
+    </div>`
+  },
+  events: { title:"Events", crumb:"Events", html: `
+    <div class="page container">
+      <h2>Granularity Summit</h2>
+      <p class="sub">Our flagship annual event, most recently held this year — two days of talks from the offensive security team plus a handful of outside speakers.</p>
+      <p>This year's summit ran a tighter agenda than previous years, trimmed down to two tracks instead of three after attendee feedback that the third track was thinly attended. Catering was handled locally rather than through the usual conference vendor, which the team generally agreed was an improvement. Attendance was up roughly 20% year over year, with a noticeably higher proportion of technical (versus purely executive) attendees than in prior years.</p>
+      <h3 class="sechead">Schedule highlights</h3>
+      <div class="schedule-row"><span class="t">Day 1, AM</span><span>Opening keynote: "Continuous Assurance in Practice"</span></div>
+      <div class="schedule-row"><span class="t">Day 1, PM</span><span>Track A: Offensive methodology deep-dive · Track B: Client case studies</span></div>
+      <div class="schedule-row"><span class="t">Day 2, AM</span><span>Workshop: Scoping engagements that actually hold up</span></div>
+      <div class="schedule-row"><span class="t">Day 2, PM</span><span>Closing panel with three client CISOs</span></div>
+      <h3 class="sechead">Sponsors &amp; partners</h3>
+      <p style="color:var(--muted);font-size:14.5px">A handful of tooling vendors and two alliance partners sponsored this year's event, continuing a relationship that's run for the past three summits. Booth traffic was noticeably higher during the afternoon breaks than in previous years, which the sponsor-relations team is chalking up to the tighter two-track schedule keeping people in the same hallway rather than splitting across three.</p>
+      <h3 class="sechead">Attendee breakdown</h3>
+      <p style="color:var(--muted);font-size:14.5px">Roughly 60% of attendees came from client organizations, 25% from alliance partners and vendors, and the rest a mix of press and prospective hires sitting in on the open sessions. Technical tracks ran slightly over capacity in both afternoon slots.</p>
+      <h3 class="sechead">Venue notes</h3>
+      <p style="color:var(--muted);font-size:14.5px">We moved venues this year after outgrowing the previous space — the new location has better breakout rooms but noticeably worse hallway wifi, which became a running joke by the end of day one.</p>
+      ${flagbox('f2','📍 Conference location — click to confirm')}
+
+      <details class="accordion">
+        <summary>Past events</summary>
+        <div class="inner">
+          <a onclick="go('events-threatcon')">ThreatCon — archived recap</a>
+          <a onclick="go('press')">Older press mentions</a>
+        </div>
+      </details>
+    </div>`
+  },
+  "events-threatcon": { title:"ThreatCon", crumb:"Events / Past Events / ThreatCon", html: `
+    <div class="page container">
+      <h2>ThreatCon</h2>
+      <p class="sub">A mid-sized European conference we sponsored for a couple of years running — archived here now that it's rolled off our active sponsor list.</p>
+      <p>Our team ran a half-day workshop on adversary simulation methodology alongside the main talk track. Attendance was smaller than the US events but the audience skewed heavily technical, which made for some of the better post-talk conversations of that cycle.</p>
+      <p style="color:var(--muted);font-size:14.5px">The workshop format ran as a mix of lecture and hands-on lab time, split roughly 40/60 — most attendees said afterward they'd have liked even more lab time than we gave them. We've noted that for next time, assuming the sponsorship relationship continues.</p>
+      <p style="color:var(--muted);font-size:14.5px">One attendee feedback card stuck with the team: "best technical workshop at a vendor-adjacent conference I've been to in years" — flattering, if a little backhanded about the rest of the program.</p>
+      <img style="width:1000px;height:500px" src="image_conference.jpg" alt="Conference image">
+       <p style="color:var(--muted);font-size:12.5px;margin:0 0 14px">Workshop session, Day 1 — full room, standing room only by the afternoon slot.</p>
+    </div>`
+  },
+  press: { title:"Press", crumb:"Press", html: `
+    <div class="page container">
+      <h2>Press Mentions</h2>
+      <div class="eventrow"><span class="ttl">"Why Point-in-Time Pentests Are Dying" — Dark Reading</span><span class="yr">2025</span></div>
+      <div class="eventrow"><span class="ttl">Panel: Offensive Security ROI — SecOps Weekly</span><span class="yr">2024</span></div>
+      <div class="eventrow"><span class="ttl">"Boutique Firms to Watch" — Security Trade Quarterly</span><span class="yr">2023</span></div>
+      <div class="eventrow"><span class="ttl">Quoted: "The Human Side of Pentesting" — InfoSec Monthly</span><span class="yr">2022</span></div>
+      <div class="eventrow"><span class="ttl">Podcast guest spot — The Breach Report</span><span class="yr">2022</span></div>
+      <p style="color:var(--muted);font-size:13.5px;margin-top:18px">For press inquiries, reach out through our general contact channel rather than directly to individual team members. We typically turn around a response within two business days.</p>
+    </div>`
+  },
+  "ecosystem-partners": { title:"Alliance Network", crumb:"Alliance Network", html: `
+    <div class="page container">
+      <h2>Alliance Network</h2>
+      <p class="sub">We co-deliver large engagements alongside a small bench of fellow boutique firms rather than compete head-on for the same scope.</p>
+      <p>This arrangement lets a client bring in hardware security, cloud-native testing, or OT/ICS assessment without us pretending to be generalists at everything. Referrals run both directions, and none of these relationships are exclusive.</p>
+      <h3 class="sechead">Partner categories</h3>
+      <ul class="piplist">
+        <li>Hardware &amp; embedded security — firmware, IoT, and device-level assessment</li>
+        <li>Cloud-native testing — container, Kubernetes, and serverless-focused engagements</li>
+        <li>OT/ICS assessment — industrial control systems and operational technology environments</li>
+        <li>Compliance consulting — framework-specific advisory beyond our own SOC 2 / ISO 27001 practice</li>
+      </ul>
+      <h3 class="sechead">How these relationships work</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">Most alliance engagements start with a client need we recognize is outside our core scope. Rather than stretch a generalist team thin, we bring in a partner with deeper specialization, stay involved as the primary point of contact, and fold their findings into our own reporting format so the client gets one coherent deliverable instead of two disconnected reports.</p>
+      <h3 class="sechead">Becoming a partner</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">We're selective about who joins this network — reputation and specialization depth matter more to us than size. Inbound partner interest is reviewed informally by the leadership team rather than through a formal application process.</p>
+      <details class="accordion">
+        <summary>Partner directory documents</summary>
+        <div class="inner">
+          <p style="margin:0 0 10px">Internal reference doc covering the current partner roster and how referral credit is split. Mostly bookkeeping, not very exciting.</p>
+          ${flagbox('f5','🔗 Ecosystem structure — click to confirm')}
+        </div>
+      </details>
+    </div>`
+  },
+  "ecosystem-supplychain": { title:"Vendor & Delivery Info", crumb:"Vendor & Delivery Info", html: `
+    <div class="page container">
+      <h2>Vendor &amp; Delivery Info</h2>
+      <p class="sub">How work and tooling actually move through Granularity.</p>
+      <p>Our assessment tooling is licensed upstream from a small set of commercial vendors, our findings are delivered downstream to clients through LiveCorp's reporting portal, and a modest reseller channel carries our managed offering into markets we don't cover directly ourselves.</p>
+      <h3 class="sechead">Our tooling stack</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">We license a mix of commercial scanning and exploitation frameworks rather than building everything in-house — a deliberate choice that lets the team spend time on actual engagement work instead of tool maintenance. A handful of internal scripts fill the gaps where commercial tooling doesn't quite fit our methodology.</p>
+      <h3 class="sechead">Reseller channel</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">Our managed offering is available directly through Granularity in our core markets, and through a small number of regional resellers elsewhere. Resellers handle first-line client relationships in their territory while delivery work still routes back through our own team.</p>
+      <h3 class="sechead">Vendor onboarding</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">New tooling vendors go through a short internal evaluation before anything touches a live engagement — mostly a licensing and data-handling review rather than a deep technical bake-off, since most serious commercial tools in this space are functionally comparable.</p>
+      <details class="accordion">
+        <summary>Internal routing notes</summary>
+        <div class="inner">
+          <p style="margin:0 0 10px">A leftover internal note on how delivery routing is structured between the teams. Mostly process trivia.</p>
+          ${flagbox('f6','🔗 Delivery chain — click to confirm')}
+        </div>
+      </details>
+    </div>`
+  },
+  blog: { title:"Blog", crumb:"Blog", html: `
+    <div class="page container">
+      <h2>From the Blog</h2>
+      <p class="sub">Notes from the team — mostly technical, occasionally opinionated.</p>
+      <div class="linklist">
+        <a onclick="go('blog-mfa')">Why Your MFA Rollout Probably Has a Gap<span>Common MFA bypass patterns</span></a>
+        <a onclick="go('blog-redteam')">Red Team Lessons from a Failed Phish<span>What a reported pretext taught us</span></a>
+        <a onclick="go('blog-reports')">Reading a Pentest Report Like an Engineer<span>Triaging findings by exploitability</span></a>
+        <a onclick="go('blog-scoping')">What Our Clients Get Wrong About Scoping<span>Writing a rules-of-engagement doc that works</span></a>
+        <a onclick="go('blog-misc')">Odds and Ends From This Quarter<span>A looser, grab-bag update from the team</span></a>
+      </div>
+    </div>`
+  },
+  "blog-mfa": { title:"MFA Gaps", crumb:"Blog / MFA Gaps", html: `
+    <div class="page container"><h2>Why Your MFA Rollout Probably Has a Gap</h2>
+    <p>A walkthrough of the three most common MFA bypass patterns we see in engagements: push-fatigue, SIM-swap-adjacent recovery flows, and legacy protocol fallback that nobody remembered to disable. None of these are exotic — all three show up in nearly every engagement where MFA is "done."</p>
+    <p>Push-fatigue remains the easiest win for an attacker and the hardest for a defender to fully close, since it exploits a human decision rather than a technical flaw. We typically see it succeed within the first two or three attempts once a target's phone number is confirmed. The fix isn't more training alone — number-matching push approval closes most of the gap on its own.</p>
+    <p>Legacy protocol fallback is the quieter problem. IMAP, POP, and older SMTP auth paths frequently sit unmonitored even after an org has rolled out modern MFA everywhere else, because nobody audits the protocols a mail server still technically accepts. We flag this in roughly half of our engagements against organizations that consider their MFA rollout "complete."</p>
+    <p>If there's one takeaway, it's that MFA coverage should be measured by protocol, not by application — a login page can be fully covered while an old mail protocol sitting one layer down is wide open.</p>
+    <p>We also recommend a periodic audit of break-glass accounts — the emergency admin logins that bypass MFA by design. These accounts are supposed to be rare and tightly controlled, but in practice they're one of the first things we check, because they're forgotten about far more often than they're actually used.</p></div>`
+  },
+  "blog-redteam": { title:"Failed Phish", crumb:"Blog / Failed Phish", html: `
+    <div class="page container"><h2>Red Team Lessons from a Failed Phish</h2>
+    <p>Not every pretext lands. Here's what we learned the one time our social engineering attempt got reported immediately — and why, from a program-health standpoint, that's actually the result you want to see more of.</p>
+    <p>The pretext itself wasn't bad — a plausible IT migration notice, timed to land during a real internal system change the client had mentioned in scoping. What tripped it up was a single inconsistency in the sender domain that one sharp employee caught and reported within four minutes of send. We've since started stress-testing our own pretexts against a "what's the one thing a careful person would notice" pass before launch.</p>
+    <p>The real finding wasn't the phish failing — it was how the report made its way through the organization afterward. It took almost three hours for that initial report to reach the security team, routed through two unrelated channels first. That lag, not the phishing attempt itself, became the headline finding in our report.</p>
+    <p>We've started recommending clients run a tabletop specifically on "what happens after someone reports a phish," separate from the phishing test itself — the reporting pipeline is usually the bigger gap.</p>
+    <p>Worth saying too: the employee who caught it got a direct thank-you note from the client's CISO, which we think did more for the security culture there than any training module could have. Recognition matters more than most security programs budget for.</p></div>`
+  },
+  "blog-reports": { title:"Reading Reports", crumb:"Blog / Reading Reports", html: `
+    <div class="page container"><h2>Reading a Pentest Report Like an Engineer</h2>
+    <p>A guide for technical teams on triaging findings by exploitability rather than by CVSS score alone — because a 9.8 that requires physical console access is not the same emergency as a 6.5 that's exposed to the internet.</p>
+    <p>We structure every report with an "attack path" section specifically so a reader doesn't have to reconstruct exploitability themselves from a flat list of CVEs. If a finding only matters when chained with two other findings, we say so explicitly, and we rank the chain rather than each link individually.</p>
+    <p>The other habit worth adopting: read the remediation section before the findings section. It reframes the whole report around what you're going to do about it, rather than how bad it sounds in isolation.</p>
+    <p>We also recommend assigning an internal owner to each finding at readout time, while the context is still fresh — findings that don't get an owner on day one have a way of quietly aging into next year's audit.</p>
+    <p>One more habit worth stealing: ask your tester which finding they'd fix first if they could only pick one. It's rarely the highest-scored item on paper, and the answer usually tells you more about real-world risk than the CVSS column does.</p></div>`
+  },
+  "blog-scoping": { title:"Scoping", crumb:"Blog / Scoping", html: `
+    <div class="page container"><h2>What Our Clients Get Wrong About Scoping</h2>
+    <p>The most common scoping mistake isn't too narrow — it's too vague. Some thoughts on writing a rules-of-engagement doc that actually protects both sides of the engagement.</p>
+    <p>"Test our external footprint" sounds reasonable until testing day, when it turns out nobody agreed on whether that includes a third-party-hosted marketing site, or a staging environment that's technically internet-reachable. We now require a literal asset list signed off by both sides before kickoff, no exceptions, regardless of how long the client has worked with us.</p>
+    <p>The second most common mistake is scoping the test around compliance requirements rather than actual risk. A checkbox-driven scope tends to miss exactly the things an attacker would actually go after, because auditors and attackers are optimizing for different things.</p>
+    <p>A smaller but recurring issue: clients under-scoping the social engineering piece out of discomfort, then being surprised when the technical findings alone don't tell the full story. We try to normalize this in the first scoping call rather than letting it become an awkward negotiation later.</p>
+    <p>Last thing: scope documents should name an escalation contact on both sides, reachable in real time during testing hours. We've had engagements stall for a full day because a critical finding needed a go/no-go decision and nobody on the client side was reachable. It's a small line item that saves a lot of pain.</p></div>`
+  },
+  "blog-misc": { title:"Odds and Ends", crumb:"Blog / Odds and Ends", html: `
+    <div class="page container"><h2>Odds and Ends From This Quarter</h2>
+    <p>A looser update than our usual technical posts — a handful of small things from the last few months that didn't each warrant their own write-up.</p>
+    <p>We finally retired the old ticketing system in favor of something the engineering team actually likes using, which is a bigger quality-of-life change internally than it sounds like from the outside. The migration took about three weeks longer than planned, mostly due to a backlog of unresolved tickets nobody wanted to be the one to close.</p>
+    <p>A few of the team picked up a CTF habit this quarter outside of work, which has been a fun source of hallway conversation and occasionally useful methodology ideas we've brought back into real engagements. One of our testers placed in the top ten of a mid-sized regional competition, which we're choosing to take some secondhand pride in.</p>
+    <p>On the travel side, things were quieter than usual — most of the team's conference time this year went toward the two events we've already written about elsewhere. There was a small side trip for a handful of us to a regional conference that barely made it onto anyone's calendar, more of a "we happened to be in the area" stop than a planned appearance.</p>
+    <div class="card">
+      <h3>A comment got left on this post</h3>
+      <p style="color:var(--muted);font-size:13.5px">Looks like someone started drafting a note about that trip directly in the CMS and it saved as a restricted comment rather than publishing. Comments like this are only visible to signed-in staff.</p>
+      <label style="display:block;font-size:12.5px;font-weight:600;margin:12px 0 4px">Username</label>
+      <input type="text" id="blogU" autocomplete="off" spellcheck="false" style="width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:3px;font:inherit;background:var(--bg);color:var(--ink)">
+      <label style="display:block;font-size:12.5px;font-weight:600;margin:12px 0 4px">Password</label>
+      <input type="password" id="blogP" style="width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:3px;font:inherit;background:var(--bg);color:var(--ink)">
+      <button onclick="attemptBlogUnlock()" style="margin-top:14px;padding:9px 18px;border:none;border-radius:3px;background:var(--ink);color:var(--bg);font:inherit;font-weight:600;cursor:pointer">View comment</button>
+      <div class="login-msg" id="blogMsg"></div>
+      <div id="blogFlagReveal" style="display:none;margin-top:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px"></div>
+    </div>
+    <p>Otherwise, a quiet quarter. The office plant situation also improved substantially after someone finally labeled the watering schedule. We'll be back to the usual technical cadence next post.</p></div>`
+  },
+  careers: { title:"Careers", crumb:"Careers", html: `
+    <div class="page container">
+      <h2>Careers</h2>
+      <p class="sub">Open roles across the Granularity and LiveCorp teams.</p>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">We hire slower than most companies our size — every delivery hire goes through a hands-on technical evaluation in addition to standard interviews, which stretches our average time-to-offer but keeps the bar consistent across pods. Non-delivery roles move faster.</p>
+      <h3 class="sechead">Benefits, briefly</h3>
+      <ul class="piplist">
+        <li>Health, dental, and vision coverage from day one</li>
+        <li>Flexible PTO, no accrual tracking</li>
+        <li>Annual training and conference stipend</li>
+        <li>Fully remote-eligible for most engineering and operations roles</li>
+      </ul>
+      <div class="jobtools">
+        <input type="text" id="jobSearch" placeholder="Search roles..." oninput="renderJobs()">
+        <select id="jobDept" onchange="renderJobs()">
+          <option value="">All departments</option>
+          <option>Engineering</option><option>Sales</option><option>Operations</option><option>People</option><option>Marketing</option>
+        </select>
+      </div>
+      <div id="jobList"></div>
+    </div>`
+  },
+  offices: { title:"Offices", crumb:"Offices", html: `
+    <div class="page container">
+      <h2>Offices</h2>
+      <p class="sub">Granularity's registered headquarters and primary delivery office.</p>
+      <div class="card">
+        <h3>${ICONS.lock} Headquarters</h3>
+        <p>We keep one primary office rather than a scattered footprint — most of the team works client-side or remote.</p>
+        ${flagbox('f1','📍 HQ geodata — click to confirm')}
+      </div>
+      <h3 class="sechead">What's at the office</h3>
+      <ul class="piplist">
+        <li>A dedicated hardware lab for device and IoT testing work</li>
+        <li>Two bookable client meeting rooms, usually reserved a week out during summit season</li>
+        <li>A small library of security and engineering reference books that nobody ever returns on time</li>
+      </ul>
+      <h3 class="sechead">Visiting</h3>
+      <p style="color:var(--muted);font-size:14.5px;max-width:60ch">Client visits are welcome by appointment. Walk-ins aren't really a thing here since most of the team isn't in the building on any given day — better to coordinate ahead through your account contact.</p>
+    </div>`
+  }
+};
+
+/* ---------- job board rendering ---------- */
+function jobRowHTML(j){
+  const statusLabel = j.status === "filled" ? "Filled" : "Open";
+  const statusClass = j.status === "filled" ? "status filled" : "status";
+  return `<div class="jobrow" onclick="go('job-${j.id}')">
+    <div><strong>${j.title}</strong><div class="meta">${j.dept} · ${j.loc} · ${j.type}</div></div>
+    <span class="${statusClass}">${statusLabel}</span>
+  </div>`;
+}
+function renderJobs(){
+  const list = document.getElementById("jobList");
+  if(!list) return;
+  const q = (document.getElementById("jobSearch").value || "").toLowerCase();
+  const dept = document.getElementById("jobDept").value;
+  const filtered = JOBS.filter(j => j.title.toLowerCase().includes(q) && (!dept || j.dept === dept));
+  list.innerHTML = filtered.length ? filtered.map(jobRowHTML).join("") : '<p style="color:var(--muted);font-size:14px">No roles match.</p>';
+}
+function jobDetailHTML(job){
+  const statusLabel = job.status === "filled" ? "Filled" : "Open";
+  return `<div class="page container">
+    <p class="backlink" onclick="go('careers')">← Back to careers</p>
+    <h2>${job.title}</h2>
+    <p class="sub">${job.dept} · ${job.loc} · ${job.type} · <strong>${statusLabel}</strong></p>
+    <p>${job.desc}</p>
+    <h3 class="sechead">What the role covers</h3>
+    <p style="color:var(--muted);font-size:14.5px">Day to day work varies by quarter depending on active engagements, but generally includes close coordination with the delivery team, documentation, and process upkeep appropriate to the role.</p>
+    ${job.status === "filled" ? `
+    <h3 class="sechead">Posting history</h3>
+    <p style="color:var(--muted);font-size:14.5px">This posting stayed up longer than intended after the role was filled — leaving it as-is for now rather than editing it down.</p>
+    ${flagbox('f9','🗂 Leftover note on this posting — click to view')}
+    ` : ``}
+  </div>`;
+}
+
+/* ---------- portal ---------- */
+const CRED_HASHES = {
+  "31cd361906da687145d9388a8b981cedc5d07decde474f9bef24364787f46fcd": {level:1, name:"Marcus Whitfield (HR)"},
+  "0b54ba499b015209f84de1f445e0c8235dfb319dc2fd118db9b3183e91b902aa": {level:2, name:"Priya Suresh (Engineering)"},
+  "8ab4345d22b7be1a3fca599fdde58abaa6974de091cc1ceaf7b745db7e9d8b3e": {level:3, name:"Daniel Reyes (VP)"}
+};
+const REQUIRED_LEVEL = 1;
+async function sha256(text){
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest("SHA-256", enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+}
+function portalHTML(){
+  return `<div class="page container">
+    <div class="login-box" id="loginBox">
+      <h2>Staff Portal</h2>
+      <p>Internal access only. Sign in with your Granularity credentials.</p>
+      <label for="u">Username</label><input type="text" id="u" autocomplete="off" spellcheck="false">
+      <label for="p">Password</label><input type="password" id="p" autocomplete="off">
+      <button onclick="attemptLogin()">Sign in</button>
+      <div class="login-msg" id="loginMsg"></div>
+    </div>
+    <div class="unlocked" id="unlockedBox">
+      <div class="card">
+        <h3 id="welcomeMsg"></h3>
+        <p>You're in. Staff bulletin: HVAC maintenance scheduled for the server closet this weekend — expect brief monitoring gaps. Also, a reminder from facilities: please stop propping the loading-dock door open, it trips the badge-reader logs.</p>
+        <p style="margin-top:12px">Other notices: the Q3 expense report deadline moved up a week, parking passes need to be renewed by the end of the month at the front desk, and the kitchen coffee machine is being serviced Thursday — bring your own if that's a dealbreaker.</p>
+        <p style="margin-top:12px">Nothing else lives in this portal yet — most day-to-day work happens in LiveCorp's operational tools.</p>
+      </div>
+    </div>
+  </div>`;
+}
+async function attemptLogin(){
+  const u = document.getElementById("u").value.trim();
+  const p = document.getElementById("p").value;
+  const msg = document.getElementById("loginMsg");
+  if(!u || !p){ return; }
+  const hash = await sha256(u + "|" + p);
+  const match = CRED_HASHES[hash];
+  if(!match){ msg.textContent = "Invalid credentials."; msg.className = "login-msg bad"; return; }
+  if(match.level < REQUIRED_LEVEL){ msg.textContent = "Credentials valid, but insufficient clearance for this portal."; msg.className = "login-msg bad"; return; }
+  msg.textContent = "";
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("welcomeMsg").textContent = "Welcome back, " + match.name + ".";
+  document.getElementById("unlockedBox").classList.add("show");
+}
+async function attemptBlogUnlock(){
+  const u = document.getElementById("blogU").value.trim();
+  const p = document.getElementById("blogP").value;
+  const msg = document.getElementById("blogMsg");
+  if(!u || !p){ return; }
+  const hash = await sha256(u + "|" + p);
+  const match = CRED_HASHES[hash];
+  if(!match || match.level < 1){
+    msg.textContent = "Invalid credentials.";
+    msg.className = "login-msg bad";
+    return;
+  }
+  msg.textContent = "";
+  const reveal = document.getElementById("blogFlagReveal");
+  reveal.style.display = "block";
+  reveal.textContent = "Flag: " + atob(FLAGS.f4);
+}
+
+/* ---------- router ---------- */
+function go(hash){ location.hash = hash; }
+function render(){
+  const hash = (location.hash || "#home").replace("#","");
+  const app = document.getElementById("app");
+  const crumbWrap = document.getElementById("crumb-wrap");
+
+  if(hash === "portal"){
+    app.innerHTML = portalHTML();
+    document.title = "Staff Portal — Granularity";
+    crumbWrap.style.display = "block";
+    document.getElementById("crumb").innerHTML = '<a onclick="go(\'home\')">Home</a> / Staff Portal';
+    window.scrollTo(0,0);
+    return;
+  }
+
+  if(hash.startsWith("job-")){
+    const job = JOBS.find(j => "job-" + j.id === hash);
+    if(job){
+      app.innerHTML = jobDetailHTML(job);
+      document.title = job.title + " — Granularity";
+      crumbWrap.style.display = "block";
+      document.getElementById("crumb").innerHTML = '<a onclick="go(\'home\')">Home</a> / <a onclick="go(\'careers\')">Careers</a> / ' + job.title;
+      window.scrollTo(0,0);
+      return;
+    }
+  }
+
+  if(PAGES[hash]){
+    const page = PAGES[hash];
+    app.innerHTML = page.html;
+    document.title = page.title + " — Granularity";
+    if(page.crumb){
+      crumbWrap.style.display = "block";
+      document.getElementById("crumb").innerHTML = '<a onclick="go(\'home\')">Home</a> / ' + page.crumb;
+    } else {
+      crumbWrap.style.display = "none";
+    }
+    if(hash === "careers"){ renderJobs(); }
+    window.scrollTo(0,0);
+    return;
+  }
+
+  if(DECOY_CONTENT[hash]){
+    app.innerHTML = decoyHTML(hash);
+    document.title = DECOY_CONTENT[hash].title + " — Granularity";
+    crumbWrap.style.display = "block";
+    document.getElementById("crumb").innerHTML = '<a onclick="go(\'home\')">Home</a> / ' + DECOY_CONTENT[hash].title;
+    window.scrollTo(0,0);
+    return;
+  }
+
+  app.innerHTML = PAGES.home.html;
+  document.title = "Home — Granularity";
+  crumbWrap.style.display = "none";
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange", render);
+render();
+</script>
+</body>
+</html>
